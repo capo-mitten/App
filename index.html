@@ -1,0 +1,1210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Reset</title>
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#FDFCFA">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#171511">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Reset">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<style>
+:root{
+  --bg:#FDFCFA; --card:#FFFFFF; --ink:#2B2723; --mut:#928C82; --line:#ECE8E1;
+  --anger:#E58B7B;   --anger-t:#FAE6E1;
+  --fear:#EFAF7C;    --fear-t:#FBEDDE;
+  --surprise:#E3C25E;--surprise-t:#F9F0D4;
+  --joy:#8FBF88;     --joy-t:#E7F2E4;
+  --calm:#7FBFB4;    --calm-t:#E2F1EE;
+  --sad:#7FB5CB;     --sad-t:#E2EEF4;
+  --disgust:#AC97D8; --disgust-t:#EDE7F7;
+  --radius:18px;
+  --inkText:#FDFCFA; --glass:rgba(253,252,250,.9);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#171511; --card:#221F1A; --ink:#F1EEE7; --mut:#A29C8F; --line:#37332C;
+    --inkText:#171511; --glass:rgba(23,21,17,.88);
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font:16px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;overscroll-behavior-y:none}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(420px 420px at 12% -4%, rgba(143,191,136,.16), transparent 70%),
+    radial-gradient(460px 460px at 105% 30%, rgba(239,175,124,.14), transparent 70%),
+    radial-gradient(420px 420px at -6% 88%, rgba(127,181,203,.14), transparent 70%);}
+.serif{font-family:ui-serif,"New York",Georgia,serif}
+#app{max-width:480px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column}
+main{flex:1;padding:14px 20px calc(98px + env(safe-area-inset-bottom))}
+header.top{padding:calc(14px + env(safe-area-inset-top)) 20px 0;display:flex;align-items:baseline;justify-content:space-between;max-width:480px;margin:0 auto;width:100%}
+.brand{font-family:ui-serif,"New York",Georgia,serif;font-size:20px}
+.date{color:var(--mut);font-size:13px}
+
+nav.tabs{position:fixed;bottom:0;left:0;right:0;background:var(--glass);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-top:1px solid var(--line);display:flex;justify-content:space-around;
+  padding:10px 8px calc(10px + env(safe-area-inset-bottom));z-index:20}
+nav.tabs button{background:none;border:0;color:var(--mut);font:500 12px/1 -apple-system,system-ui;
+  display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 18px;border-radius:12px;cursor:pointer}
+nav.tabs button.on{color:var(--ink)}
+nav.tabs svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* home */
+.hero{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:46vh;text-align:center}
+.checkin-btn{width:196px;height:196px;border-radius:50%;border:0;padding:7px;cursor:pointer;
+  background:conic-gradient(from -90deg,var(--anger),var(--fear),var(--surprise),var(--joy),var(--calm),var(--sad),var(--disgust),var(--anger));
+  box-shadow:0 14px 34px rgba(43,39,35,.12);transition:transform .12s ease}
+.checkin-btn:active{transform:scale(.96)}
+.checkin-btn .inner{width:100%;height:100%;border-radius:50%;background:var(--card);
+  display:flex;align-items:center;justify-content:center;
+  font-family:ui-serif,"New York",Georgia,serif;font-size:24px;color:var(--ink)}
+.hero .sub{color:var(--mut);font-size:14px;margin-top:16px}
+.streakline{margin-top:26px;color:var(--mut);font-size:13px}
+.earlier{margin-top:14px;background:none;border:0;color:var(--mut);font-size:13px;text-decoration:underline;cursor:pointer}
+
+.banner{background:var(--ink);color:var(--inkText);border-radius:var(--radius);padding:15px 18px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.banner .t{font-size:15px}
+.banner button{background:var(--inkText);color:var(--ink);border:0;border-radius:999px;padding:8px 16px;font:600 13px/1 -apple-system,system-ui;cursor:pointer}
+.banner.soft{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.banner.soft .t{color:var(--mut);font-size:13px}
+.banner.soft button{background:var(--bg);color:var(--mut);border:1px solid var(--line)}
+
+/* flow */
+.flow-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.flow-top .back,.flow-top .cancel{background:none;border:0;color:var(--mut);font-size:14px;cursor:pointer;padding:6px}
+.prompt{font-family:ui-serif,"New York",Georgia,serif;font-size:26px;line-height:1.25;margin:4px 0 18px}
+.subprompt{color:var(--mut);font-size:14px;margin:-12px 0 18px}
+
+.wheelwrap{display:flex;justify-content:center;margin:6px 0 4px}
+.wheelwrap svg{width:min(86vw,330px);height:auto}
+.wheel-seg{cursor:pointer;transition:opacity .12s}
+.wheel-seg:active{opacity:.75}
+.wheel-lbl{font:600 13px -apple-system,system-ui;fill:#2B2723;pointer-events:none}
+
+.feels{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+.feel{border:0;border-radius:13px;padding:14px 6px;font:400 14px/1.2 -apple-system,system-ui;
+  color:var(--ink);cursor:pointer;transition:transform .1s ease}
+.feel:active{transform:scale(.96)}
+
+.chips{display:flex;flex-wrap:wrap;gap:9px}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:10px 16px;
+  font:400 14px/1.2 -apple-system,system-ui;color:var(--ink);cursor:pointer}
+.chip.sel{border-color:var(--ink);background:var(--ink);color:var(--inkText)}
+
+.bigchoice{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.bigchoice button{border:1.5px solid var(--ink);background:var(--card);color:var(--ink);
+  border-radius:var(--radius);padding:19px;font:500 17px/1.3 -apple-system,system-ui;cursor:pointer;text-align:left}
+.bigchoice button small{display:block;font-weight:400;font-size:13px;color:var(--mut);margin-top:3px}
+.bigchoice button.primary{background:var(--ink);color:var(--inkText)}
+.bigchoice button.primary small{color:inherit;opacity:.72}
+
+.alts{display:flex;flex-direction:column;gap:10px}
+.alt{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:15px;
+  text-align:left;font:400 15px/1.35 -apple-system,system-ui;color:var(--ink);cursor:pointer}
+.alt.sel{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.customrow{display:flex;gap:8px;margin-top:14px}
+.customrow input{flex:1;border:1px solid var(--line);border-radius:999px;padding:12px 16px;font:400 15px/1 -apple-system,system-ui;background:var(--card);color:var(--ink)}
+.customrow input:focus{outline:none;border-color:var(--mut)}
+.customrow button{border:1.5px solid var(--ink);background:var(--card);border-radius:999px;padding:0 18px;font:600 14px;cursor:pointer;color:var(--ink)}
+
+.codegrid{margin-bottom:18px}
+.codegrid h4{margin:0 0 8px;font:600 13px/1 -apple-system,system-ui;color:var(--mut);letter-spacing:.06em;text-transform:uppercase}
+.codes{display:flex;flex-wrap:wrap;gap:8px}
+.code{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:11px 18px;
+  font:500 15px/1 ui-monospace,"SF Mono",Menlo,monospace;color:var(--ink);cursor:pointer}
+.code:active{background:var(--bg)}
+.code.plus{color:var(--mut)}
+
+.donecard{text-align:center;padding:42px 10px}
+.donecard .ring{width:64px;height:64px;border-radius:50%;margin:0 auto;padding:5px;
+  background:conic-gradient(from -90deg,var(--anger),var(--fear),var(--surprise),var(--joy),var(--calm),var(--sad),var(--disgust),var(--anger))}
+.donecard .ring i{display:block;width:100%;height:100%;border-radius:50%;background:var(--card)}
+.donecard p{color:var(--mut);max-width:300px;margin:14px auto 0}
+.donecard .home{margin-top:26px}
+
+.btnrow{display:flex;gap:10px;margin-top:20px}
+.btn{flex:1;border-radius:999px;padding:15px;font:600 15px/1 -apple-system,system-ui;cursor:pointer;border:1.5px solid var(--ink);background:var(--card);color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--inkText)}
+.btn.ghost{border-color:var(--line);color:var(--mut)}
+textarea.note{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px;font:400 15px/1.4 -apple-system,system-ui;background:var(--card);color:var(--ink);resize:none;margin-top:14px}
+textarea.note:focus{outline:none;border-color:var(--mut)}
+input.when{width:100%;border:1px solid var(--line);border-radius:14px;padding:14px;font:400 16px/1 -apple-system,system-ui;background:var(--card);color:var(--ink)}
+.defstrip{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 14px;font-size:13.5px;color:var(--mut)}
+.defstrip b{color:var(--ink)}
+.deflist{display:flex;flex-direction:column;gap:10px}
+.defrow{display:flex;gap:10px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+.defrow .dot{width:11px;height:11px;border-radius:50%;flex:none;margin-top:4px}
+.defrow b{font-size:15px}
+.defrow small{display:block;color:var(--mut);font-size:12.5px;margin-top:1px}
+.selstrip{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0 4px}
+.selstrip .mini{border:0;border-radius:999px;padding:8px 14px;font:500 13px -apple-system,system-ui;color:#2B2723;cursor:pointer}
+.corelbl{font:600 12px -apple-system,system-ui;letter-spacing:.05em;text-transform:uppercase;margin:16px 0 8px}
+.alt b{font-size:15px}
+.alt small{display:block;color:var(--mut);font-size:12.5px;margin-top:2px}
+.seeall{background:none;border:0;color:var(--mut);font-size:13px;text-decoration:underline;cursor:pointer;padding:6px 0;margin-top:2px}
+
+/* trends */
+.range{display:flex;gap:8px;margin:4px 0 16px}
+.range button{border:1px solid var(--line);background:var(--card);color:var(--mut);border-radius:999px;padding:8px 16px;font:500 13px/1 -apple-system,system-ui;cursor:pointer}
+.range button.on{background:var(--ink);color:var(--inkText);border-color:var(--ink)}
+.tcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+.tcard h3{margin:0 0 2px;font:600 14px/1.3 -apple-system,system-ui}
+.tcard .hint{color:var(--mut);font-size:12px;margin:0 0 10px}
+.tcard svg{display:block;width:100%}
+.statrow{display:flex;gap:10px;margin-bottom:14px}
+.stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:13px 8px;text-align:center}
+.stat .n{font-family:ui-serif,"New York",Georgia,serif;font-size:24px}
+.stat .l{color:var(--mut);font-size:11.5px;margin-top:2px}
+.fbars{display:flex;flex-direction:column;gap:8px}
+.fbar{display:grid;grid-template-columns:100px 1fr 26px;align-items:center;gap:10px;font-size:13px}
+.fbar .bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.fbar .bar i{display:block;height:100%;border-radius:5px}
+.fbar .c{color:var(--mut);text-align:right;font-variant-numeric:tabular-nums}
+.empty{color:var(--mut);text-align:center;padding:36px 16px;font-size:14px}
+.weekbtn{width:100%;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);border-radius:var(--radius);padding:16px;font:600 15px/1 -apple-system,system-ui;cursor:pointer;margin-bottom:14px}
+
+/* summary */
+.weeknav{display:flex;align-items:center;justify-content:space-between;margin:2px 0 14px}
+.weeknav button{border:1px solid var(--line);background:var(--card);border-radius:999px;width:38px;height:38px;font-size:16px;cursor:pointer;color:var(--ink)}
+.weeknav .wl{font:600 14px -apple-system,system-ui}
+pre.report{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;
+  font:12.5px/1.55 ui-monospace,"SF Mono",Menlo,monospace;white-space:pre-wrap;word-break:break-word;color:var(--ink)}
+.legendtoggle{display:flex;align-items:center;gap:8px;color:var(--mut);font-size:13px;margin:10px 0}
+
+/* settings */
+.scard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+.scard h3{margin:0 0 10px;font:600 14px/1.3 -apple-system,system-ui}
+.scard label{display:block;color:var(--mut);font-size:13px;margin:10px 0 4px}
+.scard input[type=number],.scard input[type=text],.scard input[type=password]{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font:400 15px/1 -apple-system,system-ui;background:var(--bg);color:var(--ink)}
+.scard textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font:400 14px/1.5 -apple-system,system-ui;background:var(--bg);color:var(--ink);min-height:150px}
+.scard .row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.sbtn{border:1.5px solid var(--ink);background:var(--card);color:var(--ink);border-radius:999px;padding:10px 16px;font:600 13px/1 -apple-system,system-ui;cursor:pointer}
+.sbtn.fill{background:var(--ink);color:var(--inkText)}
+
+#lock{position:fixed;inset:0;background:var(--bg);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+#lock input{font-size:26px;text-align:center;letter-spacing:10px;border:0;border-bottom:1.5px solid var(--ink);background:none;width:160px;padding:8px;color:var(--ink)}
+#lock input:focus{outline:none}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(102px + env(safe-area-inset-bottom));background:var(--ink);color:var(--inkText);border-radius:999px;padding:10px 20px;font-size:13px;z-index:40;opacity:0;transition:opacity .25s;max-width:80vw;text-align:center}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="lock" style="display:none">
+  <div class="serif" style="font-size:22px">Reset</div>
+  <input id="pinIn" type="password" inputmode="numeric" maxlength="6" placeholder="····" aria-label="Passcode">
+  <button class="sbtn fill" onclick="tryUnlock()">Open</button>
+  <div id="pinMsg" style="color:var(--mut);font-size:13px;height:18px"></div>
+</div>
+
+<div id="app">
+  <header class="top">
+    <div class="brand">Reset</div>
+    <div class="date" id="hdrDate"></div>
+  </header>
+  <main id="main"></main>
+</div>
+
+<nav class="tabs" id="tabs">
+  <button data-r="home" onclick="go('home')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg>
+    Home</button>
+  <button data-r="trends" onclick="go('trends')">
+    <svg viewBox="0 0 24 24"><path d="M4 17l5-6 4 3 7-9"/></svg>
+    Trends</button>
+  <button data-r="settings" onclick="go('settings')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3.5v2.6M12 17.9v2.6M3.5 12h2.6M17.9 12h2.6M6 6l1.9 1.9M16.1 16.1L18 18M18 6l-1.9 1.9M7.9 16.1L6 18"/></svg>
+    Settings</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- storage ---------- */
+const LS = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v==null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
+};
+const K = { entries:'rs.entries', settings:'rs.settings', pending:'rs.pending', custom:'rs.custom' };
+
+const DEFAULT_ALTS = [
+  "Photography / a photo walk","Hand-build with clay","Meditate for ten minutes","Go for a walk",
+  "Put on an album, start to finish","Edit photos","Work on a project","Reach out to one contact",
+  "Cook or bake something","Text or call someone close","Box breathing, two minutes",
+  "Quick physical burst: pushups or a stretch","Make tea or a warm drink","Journal five minutes",
+  "Sketch something","Tidy one small space","Knock out one logistics task",
+  "Step outside, change the scenery","Learn one small thing","Drink water, have a snack"
+];
+const ACTIVITIES = ["Working","Studying","Commuting","Eating","Watching TV","Scrolling","With people","Alone at home","Out walking","Listening to music","Cooking","Winding down","In bed","Just woke up"];
+
+function settings(){ return Object.assign({delayMin:30, alternatives:DEFAULT_ALTS.slice(), quick:{e:[1,2,5,10],vp:[1,2,3,4,5],pf:[1,2,3,4,5],j:[0.5,1]}, pin:null, nudges:['10:00','15:30','20:30']}, LS.get(K.settings, {})); }
+function saveSettings(s){ LS.set(K.settings, s); }
+function entries(){ return LS.get(K.entries, []); }
+function saveEntries(a){ LS.set(K.entries, a); }
+function customCopes(){ return LS.get(K.custom, []); }
+function rememberCope(t){
+  if(!t) return;
+  const c = customCopes().filter(x=>x.toLowerCase()!==t.toLowerCase());
+  c.unshift(t); LS.set(K.custom, c.slice(0,12));
+}
+
+/* ---------- emotion model (original; spectrum-ordered, structure inspired by circumplex-style wheels) ---------- */
+/* Cores run around the wheel as a color spectrum. Within each core, feelings and
+   sensations are ordered mild → intense and rendered as a light → deep gradient. */
+const WHEEL = [
+ {id:'anger', label:'Anger', color:'var(--anger)', hex:'#E58B7B', tint:'var(--anger-t)',
+  q:'What feels unfair, blocked, or crossed?', key:['Annoyed','Irritated','Frustrated','Resentful','Hurt'],
+  feelings:['Distant','Critical','Annoyed','Defensive','Irritated','Jealous','Bitter','Frustrated','Resentful','Hurt','Mad','Furious'],
+  sens:['Warm face','Tense shoulders','Gritted teeth','Clenched jaw','Tight fists','Need to move','Short breath','Headache','Loud pulse','Hot / flushed']},
+ {id:'fear', label:'Fear', color:'var(--fear)', hex:'#EFAF7C', tint:'var(--fear-t)',
+  q:'What feels uncertain or at risk right now?', key:['Worried','Nervous','Anxious','Stressed','Overwhelmed'],
+  feelings:['Avoidant','Insecure','Worried','Nervous','Inadequate','Anxious','On edge','Stressed','Dreading','Helpless','Overwhelmed','Scared','Panicked'],
+  sens:['Restless','Sweaty palms','Stomach knot','Shallow breath','Tight chest','Racing heart','Shaky','Numb hands','Lump in throat','Frozen / stiff']},
+ {id:'surprise', label:'Surprise', color:'var(--surprise)', hex:'#E3C25E', tint:'var(--surprise-t)',
+  q:'What just changed, or didn\'t fit what you expected?', key:['Curious','Confused','Caught off guard','Amazed','Shocked'],
+  feelings:['Curious','Caught off guard','Startled','Confused','Disoriented','Amazed','In awe','Stunned','Shocked'],
+  sens:['Eyebrows up','Wide eyes','Caught breath','Alert / wired','Buzzing','Jumpy','Jolt in chest','Speechless']},
+ {id:'joy', label:'Joy', color:'var(--joy)', hex:'#8FBF88', tint:'var(--joy-t)',
+  q:'What here is worth savoring or repeating?', key:['Grateful','Connected','Happy','Playful','Excited'],
+  feelings:['Grateful','Loved','Connected','Hopeful','Amused','Optimistic','Happy','Proud','Playful','Inspired','Energized','Excited'],
+  sens:['Smiling','Open posture','Warm chest','Light all over','Awake / clear','Talkative','Tingly','Bouncy','Energized']},
+ {id:'calm', label:'Calm', color:'var(--calm)', hex:'#7FBFB4', tint:'var(--calm-t)',
+  q:'What helped you get here?', key:['Content','Relaxed','Calm','Centered','Peaceful'],
+  feelings:['Soft','Warm','Reflective','Content','Relaxed','Calm','Steady','Centered','Settled','Peaceful'],
+  sens:['Slow breath','Loose shoulders','Soft jaw','Warm hands','Steady pulse','Quiet mind','Heavy in a good way','Sleepy / cozy']},
+ {id:'sad', label:'Sad', color:'var(--sad)', hex:'#7FB5CB', tint:'var(--sad-t)',
+  q:'What feels missing, lost, or heavy?', key:['Tired','Bored','Lonely','Down','Empty'],
+  feelings:['Tired','Bored','Down','Disappointed','Apathetic','Lonely','Discouraged','Numb','Heavy','Empty','Sad','Grieving','Hopeless'],
+  sens:['Tired eyes','Low energy','Slow moving','Heavy limbs','Tight throat','Body aches','Hollow chest','Curling up','Tearful']},
+ {id:'disgust', label:'Disgust', color:'var(--disgust)', hex:'#AC97D8', tint:'var(--disgust-t)',
+  q:'What feels off, wrong, or against your values?', key:['Uncomfortable','Embarrassed','Guilty','Ashamed','Disgusted'],
+  feelings:['Uncomfortable','Disapproving','Averse','Embarrassed','Cringing','Repelled','Guilty','Ashamed','Disgusted'],
+  sens:['Face scrunch','Pulling away','Need to look away','Lip curl','Tense gut','Stomach turn','Queasy','Shudder']}
+];
+
+const DEFS = {
+ Distant:'pulled back, walled off', Critical:'fault-finding, judging', Annoyed:'mildly bothered',
+ Defensive:'braced against blame', Irritated:'rubbed the wrong way', Jealous:'guarding what feels threatened',
+ Bitter:'old anger gone stale', Frustrated:'blocked from what you want', Resentful:'keeping score of a wrong',
+ Hurt:'wounded by someone', Mad:'plainly angry', Furious:'anger at full boil',
+ Avoidant:'dodging what\'s uncomfortable', Insecure:'unsure of your footing', Worried:'looping on what could go wrong',
+ Nervous:'jittery anticipation', Inadequate:'not feeling like enough', Anxious:'keyed up about what might happen',
+ 'On edge':'braced for something', Stressed:'stretched past capacity', Dreading:'heavy about what\'s coming',
+ Helpless:'no move feels available', Overwhelmed:'too much at once', Scared:'fear with a clear edge',
+ Panicked:'alarm taking over',
+ Curious:'pulled to find out more', 'Caught off guard':'didn\'t see it coming', Startled:'jolted by something sudden',
+ Confused:'the pieces don\'t fit', Disoriented:'lost your bearings', Amazed:'impressed past expectation',
+ 'In awe':'small before something big', Stunned:'stopped in your tracks', Shocked:'hit hard by the unexpected',
+ Grateful:'warmed by what you have', Loved:'held and cared for', Connected:'in sync with someone',
+ Hopeful:'leaning toward good ahead', Amused:'tickled, lightly delighted', Optimistic:'expecting it to work out',
+ Happy:'simply good', Proud:'standing tall in something done', Playful:'light and up for fun',
+ Inspired:'sparked to make or act', Energized:'charged and ready', Excited:'eager, can\'t wait',
+ Soft:'gentle, defenses down', Warm:'kindly toward yourself or others', Reflective:'turning things over quietly',
+ Content:'enough, as is', Relaxed:'tension gone', Calm:'even and unhurried',
+ Steady:'solid under your feet', Centered:'gathered in yourself', Settled:'landed, at rest',
+ Peaceful:'deep quiet, nothing pulling',
+ Tired:'run down, low fuel', Bored:'under-stimulated, flat', Down:'low mood, gray',
+ Disappointed:'hopes fell short', Apathetic:'hard to care', Lonely:'missing connection',
+ Discouraged:'losing steam on a hope', Numb:'feelings switched off', Heavy:'weighed down',
+ Empty:'hollowed out', Sad:'plain sorrow', Grieving:'mourning a real loss', Hopeless:'no light visible',
+ Uncomfortable:'something doesn\'t sit right', Disapproving:'this isn\'t okay with you', Averse:'wanting distance from it',
+ Embarrassed:'exposed, caught out', Cringing:'recoiling at it', Repelled:'pushed away hard',
+ Guilty:'feeling you did something wrong', Ashamed:'feeling wrong as a person', Disgusted:'a full-body no'
+};
+const NARROW = {
+ 'rough|high':['anger','fear'], 'rough|low':['sad','disgust'], 'rough|mid':['anger','fear','sad','disgust'],
+ 'good|high':['joy','surprise'], 'good|low':['calm','joy'], 'good|mid':['joy','calm','surprise'],
+ 'mixed|high':['anger','fear','surprise','joy'], 'mixed|low':['sad','disgust','calm'],
+ 'mixed|mid':['anger','fear','surprise','joy','calm','sad','disgust']
+};
+const FORMS = [
+  {key:'e',  unit:'mg'},
+  {key:'vp', unit:'hits'},
+  {key:'pf', unit:'dabs'},
+  {key:'j',  unit:'g'}
+];
+function fmtAmt(a){ const s = String(a); return s.startsWith('0.') ? s.slice(1) : s; }
+function makeCode(key, amt){ return key + fmtAmt(amt); }
+
+/* ---------- state ---------- */
+let route = 'home';
+let flow = null;            // {type:'checkin'|'followup', step, stack:[], data}
+let trendsRange = 'week';
+let summaryWeekStart = null; // ms of Monday
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 1900); }
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function dayKey(ts){ const d=new Date(ts); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function shortDay(ts){ return new Date(ts).toLocaleDateString(undefined,{month:'short',day:'numeric'}); }
+function timeStr(ts){ return new Date(ts).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}); }
+function sample(arr, n){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a.slice(0,n); }
+function mixHex(hex, t, toWhite){
+  const n=parseInt(hex.slice(1),16); let r=n>>16&255, g=n>>8&255, b=n&255;
+  const T = toWhite ? 255 : 0;
+  r=Math.round(r+(T-r)*t); g=Math.round(g+(T-g)*t); b=Math.round(b+(T-b)*t);
+  return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+const tintC = (hex,t)=>mixHex(hex,t,true);
+const shadeC = (hex,t)=>mixHex(hex,t,false);
+const isDark = ()=>{ try{ return matchMedia('(prefers-color-scheme: dark)').matches; }catch(e){ return false; } };
+const emph = hex => isDark() ? tintC(hex,0.30) : shadeC(hex,0.45);
+function mondayOf(ts){ const d=new Date(ts); d.setHours(0,0,0,0); const wd=(d.getDay()+6)%7; d.setDate(d.getDate()-wd); return d.getTime(); }
+
+/* ---------- nav ---------- */
+function go(r){ route=r; flow=null; render(); }
+function setTabs(){ document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on', b.dataset.r===route)); }
+
+/* ---------- render root ---------- */
+function render(){
+  $('#hdrDate').textContent = new Date().toLocaleDateString(undefined,{weekday:'short', month:'short', day:'numeric'});
+  setTabs();
+  const m = $('#main');
+  if(flow){ m.innerHTML = renderFlow(); return; }
+  if(route==='home') m.innerHTML = renderHome();
+  else if(route==='trends') m.innerHTML = renderTrends();
+  else if(route==='summary') m.innerHTML = renderSummary();
+  else m.innerHTML = renderSettings();
+}
+
+/* ---------- home ---------- */
+function renderHome(){
+  let banner = '';
+  const p = LS.get(K.pending, null);
+  if(p){
+    banner = Date.now() >= p.dueAt
+      ? `<div class="banner"><div class="t">A check-back is waiting.</div><button onclick="startFollowup()">Open</button></div>`
+      : `<div class="banner soft"><div class="t">Check-back set for ${timeStr(p.dueAt)}</div><button onclick="startFollowup()">Do it now</button></div>`;
+  } else if(nudgeDue()){
+    banner = `<div class="banner soft"><div class="t">Take a moment?</div><button onclick="startCheckin()">Check in</button></div>`;
+  }
+  const es = entries();
+  const today = es.filter(e=>dayKey(e.ts)===dayKey(Date.now()));
+  let line = es.length===0 ? 'Tap whenever you want a pause — or just to note how you feel.' :
+    (today.length===0 ? 'Nothing logged yet today.' : `${today.length} check-in${today.length>1?'s':''} today`);
+  return `${banner}
+  <div class="hero">
+    <button class="checkin-btn" onclick="startCheckin()"><span class="inner">Check in</span></button>
+    <div class="sub serif" style="font-size:16px">How's the moment?</div>
+    <div class="streakline">${esc(line)}</div>
+    <button class="earlier" onclick="startBackfill()">Log something from earlier</button>
+  </div>`;
+}
+
+/* ---------- flow control ---------- */
+function startCheckin(){ flow = {type:'checkin', step:'wheel', stack:[], data:{id:uid(), ts:Date.now(), sensations:[]}}; render(); }
+function startBackfill(){ flow = {type:'checkin', step:'when', stack:[], data:{id:uid(), ts:null, sensations:[], backfill:true}}; render(); }
+function startFollowup(){
+  const p = LS.get(K.pending, null); if(!p) return;
+  flow = {type:'followup', step:'wheel', stack:[], data:{entryId:p.entryId, fu:{}}};
+  render();
+}
+function advance(step){ flow.stack.push(flow.step); flow.step=step; render(); }
+function goBack(){ if(flow.stack.length){ flow.step=flow.stack.pop(); render(); } else cancelFlow(); }
+function cancelFlow(){
+  if(flow && flow.type==='checkin' && flow.data.feelings && flow.data.feelings.length && !flow.data.backfill){
+    commitEntry(Object.assign({type:'note'}, flow.data)); toast('Saved as a quick note');
+  }
+  flow=null; render();
+}
+
+/* ---------- wheel svg ---------- */
+function wheelSVG(){
+  const cx=160, cy=160, rO=150, rI=64, n=WHEEL.length, gap=0.035;
+  let segs='', lbls='';
+  for(let i=0;i<n;i++){
+    const a0 = -Math.PI/2 + i*(2*Math.PI/n) + gap;
+    const a1 = -Math.PI/2 + (i+1)*(2*Math.PI/n) - gap;
+    const p = (r,a)=>[(cx+r*Math.cos(a)).toFixed(1),(cy+r*Math.sin(a)).toFixed(1)];
+    const [x0,y0]=p(rO,a0),[x1,y1]=p(rO,a1),[x2,y2]=p(rI,a1),[x3,y3]=p(rI,a0);
+    segs += `<path class="wheel-seg" d="M${x0},${y0} A${rO},${rO} 0 0 1 ${x1},${y1} L${x2},${y2} A${rI},${rI} 0 0 0 ${x3},${y3} Z" fill="${WHEEL[i].hex}" onclick="pickCore('${WHEEL[i].id}')"/>`;
+    const am=(a0+a1)/2, rl=(rO+rI)/2;
+    const [lx,ly]=p(rl,am);
+    lbls += `<text class="wheel-lbl" x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle">${WHEEL[i].label}</text>`;
+  }
+  return `<svg viewBox="0 0 320 320">${segs}<circle cx="${cx}" cy="${cy}" r="${rI-10}" fill="var(--card)"/><circle cx="${cx}" cy="${cy}" r="3.5" fill="var(--line)"/>${lbls}</svg>`;
+}
+
+/* ---------- flow render ---------- */
+function renderFlow(){
+  const f = flow;
+  const head = `<div class="flow-top"><button class="back" onclick="goBack()">‹ Back</button><button class="cancel" onclick="cancelFlow()">Cancel</button></div>`;
+
+  if(f.step==='when'){
+    const d = new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
+    return head + `<div class="prompt">When was this?</div>
+    <input type="datetime-local" class="when" id="whenIn" max="${d.toISOString().slice(0,16)}" value="${d.toISOString().slice(0,16)}">
+    <div class="btnrow"><button class="btn primary" onclick="setWhen()">Next</button></div>`;
+  }
+  if(f.step==='wheel'){
+    const sel = selFeelings(f);
+    return head + `<div class="prompt">${f.type==='followup' ? "How's the moment now?" : "How's the moment?"}</div>
+    <div class="wheelwrap">${wheelSVG()}</div>
+    ${sel.length ? `<div class="selstrip">${sel.map(s=>{const w=WHEEL.find(w=>w.id===s.core);return `<button class="mini" style="background:${tintC(w.hex,0.35)}" onclick="toggleFeel('${esc(s.name).replace(/'/g,"\\'")}','${s.core}')">${esc(s.name)} ✕</button>`;}).join('')}</div>
+    <div class="btnrow"><button class="btn primary" onclick="afterFeelings()">Continue with ${sel.length}</button></div>` : ''}
+    <div class="btnrow"><button class="btn ghost" onclick="narrowStart()">Not sure? Help me narrow it down</button></div>`;
+  }
+  if(f.step==='feel'){
+    const w = WHEEL.find(w=>w.id===f.data._core);
+    const L = w.feelings.length;
+    const sel = selFeelings(f);
+    const last = sel.length ? sel[sel.length-1] : null;
+    return head + `<div class="prompt" style="color:${emph(w.hex)}">${w.label} — more specifically…</div>
+    <div class="subprompt">Lighter is milder, deeper is stronger. Pick up to 3 — across any emotions.</div>
+    <div class="feels">${w.feelings.map((x,i)=>{
+      const t = 0.82 - 0.62*(L>1 ? i/(L-1) : 0);
+      const on = sel.some(s=>s.name===x);
+      return `<button class="feel" style="background:${tintC(w.hex,t)};color:#2B2723${on?';box-shadow:inset 0 0 0 2px #2B2723':''}" onclick="toggleFeel('${x}','${w.id}')">${on?'✓ ':''}${x}</button>`;
+    }).join('')}</div>
+    ${last && DEFS[last.name] ? `<div class="defstrip"><b>${esc(last.name)}</b> — ${esc(DEFS[last.name])}</div>` : ''}
+    <div class="btnrow">
+      <button class="btn ghost" onclick="flow.step='wheel';render()">+ Another emotion</button>
+      <button class="btn primary" onclick="feelNext()">Next${sel.length?` (${sel.length})`:''}</button>
+    </div>`;
+  }
+  if(f.step==='nv'){
+    return head + `<div class="prompt">Does the moment lean rough or good?</div>
+    <div class="bigchoice">
+      <button onclick="pickValence('rough')">Rough<small>Uncomfortable, unpleasant, off</small></button>
+      <button onclick="pickValence('good')">Good<small>Pleasant, warm, okay</small></button>
+      <button onclick="pickValence('mixed')">Mixed / not sure<small>Both, neither, hard to say</small></button>
+    </div>`;
+  }
+  if(f.step==='ne'){
+    return head + `<div class="prompt">Where's your energy?</div>
+    <div class="bigchoice">
+      <button onclick="pickEnergy('high')">Keyed up<small>Activated, buzzing, restless</small></button>
+      <button onclick="pickEnergy('low')">Low<small>Slow, heavy, flat</small></button>
+      <button onclick="pickEnergy('mid')">Somewhere in between</button>
+    </div>`;
+  }
+  if(f.step==='nlist'){
+    const cores = (f.data._ncores||[]).map(id=>WHEEL.find(w=>w.id===id));
+    const sel = selFeelings(f);
+    let body = '';
+    for(const w of cores){
+      body += `<div class="corelbl" style="color:${emph(w.hex)}">${w.label}</div><div class="alts">`;
+      body += w.key.map(x=>{
+        const on = sel.some(s=>s.name===x);
+        return `<button class="alt ${on?'sel':''}" onclick="toggleFeel('${x}','${w.id}')"><b>${on?'✓ ':''}${x}</b><small>${esc(DEFS[x]||'')}</small></button>`;
+      }).join('');
+      body += `</div><button class="seeall" onclick="flow.data._core='${w.id}';flow.step='feel';render()">See all ${w.label} →</button>`;
+    }
+    return head + `<div class="prompt">Closest matches — you choose.</div>
+    <div class="subprompt">These fit what you described. Pick up to 3, or open a group for more.</div>
+    ${body}
+    <div class="btnrow"><button class="btn primary" onclick="feelNext()">Next${sel.length?` (${sel.length})`:''}</button></div>`;
+  }
+  if(f.step==='why'){
+    const sel = selFeelings(f);
+    const prim = WHEEL.find(w=>w.id===sel[0].core);
+    return head + `<div class="prompt">Sit with it for a breath.</div>
+    <div class="deflist">${sel.map(s=>{
+      const w = WHEEL.find(w=>w.id===s.core);
+      return `<div class="defrow"><span class="dot" style="background:${w.hex}"></span><div><b>${esc(s.name)}</b><small>${esc(DEFS[s.name]||'')}</small></div></div>`;
+    }).join('')}</div>
+    <div class="subprompt" style="margin-top:18px">${prim.q}</div>
+    <textarea class="note" id="whyIn" rows="2" placeholder="A few words, if you want (optional)"></textarea>
+    <div class="btnrow">
+      <button class="btn ghost" onclick="whyNext(true)">Skip</button>
+      <button class="btn primary" onclick="whyNext(false)">Next</button>
+    </div>`;
+  }
+  if(f.step==='sense'){
+    const fl = selFeelings(f);
+    const coreIds = fl.length ? [...new Set(fl.map(s=>s.core))] : [f.data._core||WHEEL[0].id];
+    const cores = coreIds.map(id=>WHEEL.find(w=>w.id===id));
+    const items = []; const seen = new Set();
+    for(const w of cores){
+      w.sens.forEach((s,i)=>{
+        if(seen.has(s)) return; seen.add(s);
+        items.push({s, hex:w.hex, t:0.85-0.55*(w.sens.length>1 ? i/(w.sens.length-1) : 0)});
+      });
+    }
+    const sel = f.type==='checkin' ? f.data.sensations : (f.data.fu.sensations=f.data.fu.sensations||[]);
+    return head + `<div class="prompt" style="color:${emph(cores[0].hex)}">Notice it anywhere in your body?</div>
+    <div class="subprompt">Tap any that fit — or skip.</div>
+    <div class="chips">${items.map(it=>{
+      const on = sel.includes(it.s);
+      const style = on
+        ? `background:${it.hex};border-color:${shadeC(it.hex,0.35)};color:#2B2723`
+        : `background:${tintC(it.hex,it.t)};border-color:transparent;color:#2B2723`;
+      return `<button class="chip" style="${style}" onclick="toggleSense('${it.s}')">${it.s}</button>`;
+    }).join('')}</div>
+    <div class="btnrow">
+      <button class="btn ghost" onclick="senseNext(true)">Skip</button>
+      <button class="btn primary" onclick="senseNext(false)">Next</button>
+    </div>`;
+  }
+  if(f.step==='kind'){
+    return head + `<div class="prompt">What kind of moment is this?</div>
+    <div class="bigchoice">
+      <button onclick="pickKind('note')">Just checking in<small>Note the feeling and move on</small></button>
+      <button onclick="pickKind('pull')">Feeling the pull<small>Log it and decide what's next</small></button>
+    </div>`;
+  }
+  if(f.step==='activity'){
+    return head + `<div class="prompt">What are you up to?</div>
+    <div class="subprompt">Optional — helps the patterns later.</div>
+    <div class="chips">${ACTIVITIES.map(a=>`<button class="chip ${f.data.activity===a?'sel':''}" onclick="pickActivity('${a}')">${a}</button>`).join('')}</div>
+    <div class="customrow"><input id="actIn" placeholder="Or type your own…"><button onclick="customActivity()">Add</button></div>
+    <div class="btnrow">
+      <button class="btn ghost" onclick="finishNote()">Skip</button>
+      <button class="btn primary" onclick="finishNote()">Done</button>
+    </div>`;
+  }
+  if(f.step==='move'){
+    return head + `<div class="prompt">What's the move?</div>
+    <div class="bigchoice">
+      <button class="primary" onclick="pickMove(true)">Riding it out<small>Do something else with this one</small></button>
+      <button onclick="pickMove(false)">Going ahead<small>Log it honestly</small></button>
+    </div>`;
+  }
+  if(f.step==='cope'){
+    const shown = f.data._copeShown;
+    const recents = customCopes();
+    return head + `<div class="prompt">What could this become instead?</div>
+    <div class="alts">${shown.map((a,i)=>`<button class="alt ${f.data.coping===a?'sel':''}" onclick="pickCope(${i})">${esc(a)}</button>`).join('')}</div>
+    ${recents.length?`<div class="subprompt" style="margin:16px 0 8px">Your usuals</div><div class="chips">${recents.map(r=>`<button class="chip ${f.data.coping===r?'sel':''}" onclick="pickCopeText('${esc(r).replace(/'/g,"\\'")}')">${esc(r)}</button>`).join('')}</div>`:''}
+    <div class="customrow"><input id="copeIn" placeholder="Or type your own…"><button onclick="customCope()">Add</button></div>
+    <div class="btnrow">
+      <button class="btn ghost" onclick="reshuffleCopes()">Show others</button>
+      <button class="btn primary" onclick="copeDone()">Done</button>
+    </div>`;
+  }
+  if(f.step==='code'){
+    return head + `<div class="prompt">${f.type==='followup' ? 'What did it end up being?' : 'What are you reaching for?'}</div>
+    ${renderCodeGrid(f.type==='followup')}`;
+  }
+  if(f.step==='checkback'){
+    const s = settings();
+    return head + `<div class="prompt">Set a check-back?</div>
+    <div class="subprompt">A nudge in ${s.delayMin} minutes to see how it went.</div>
+    <div class="bigchoice">
+      <button class="primary" onclick="setCheckback(true)">Yes</button>
+      <button onclick="setCheckback(false)">No thanks</button>
+    </div>`;
+  }
+  if(f.step==='spent'){
+    const s = settings();
+    const recents = customCopes();
+    return head + `<div class="prompt">How did you spend the time?</div>
+    <div class="alts">
+      <button class="alt ${f.data.fu.timeSpent==='Went ahead'?'sel':''}" onclick="pickSpent('Went ahead')">Went ahead</button>
+      ${recents.map(a=>`<button class="alt ${f.data.fu.timeSpent===a?'sel':''}" onclick="pickSpent('${esc(a).replace(/'/g,"\\'")}')">${esc(a)}</button>`).join('')}
+      ${s.alternatives.slice(0,6).map(a=>`<button class="alt ${f.data.fu.timeSpent===a?'sel':''}" onclick="pickSpent('${esc(a).replace(/'/g,"\\'")}')">${esc(a)}</button>`).join('')}
+    </div>
+    <div class="customrow"><input id="spentIn" placeholder="Or type what you did…"><button onclick="customSpent()">Add</button></div>
+    <textarea class="note" id="fuNote" rows="2" placeholder="Anything to note? (optional)"></textarea>
+    <div class="btnrow"><button class="btn primary" onclick="spentNext()">Next</button></div>`;
+  }
+  if(f.step==='done'){
+    const kind = f.data._doneKind;
+    const msg = kind==='note' ? ['Noted.','Naming it is most of the work.']
+      : kind==='cope' ? ['Logged. Good call.','Come back any time — the record is the win.']
+      : ['Logged.','No judgment — honest data is what helps.'];
+    return `<div class="donecard">
+      <div class="ring"><i></i></div>
+      <div class="prompt" style="margin-top:18px">${msg[0]}</div>
+      <p>${msg[1]}</p>
+      <div class="home"><button class="btn primary" style="flex:none;padding:14px 38px" onclick="go('home')">Home</button></div>
+    </div>`;
+  }
+  return head;
+}
+
+function renderCodeGrid(includeNone){
+  const s = settings();
+  let html = '';
+  for(const fm of FORMS){
+    const amts = (s.quick[fm.key]||[]).slice().sort((a,b)=>a-b);
+    html += `<div class="codegrid"><h4>${fm.key}</h4><div class="codes">
+      ${amts.map(a=>`<button class="code" onclick="pickCode('${fm.key}',${a})">${makeCode(fm.key,a)}</button>`).join('')}
+      <button class="code plus" onclick="customCode('${fm.key}')">+</button>
+    </div></div>`;
+  }
+  if(includeNone) html += `<div class="codegrid"><div class="codes"><button class="code" style="border-color:var(--ink)" onclick="pickCode(null,0)">none</button></div></div>`;
+  return html;
+}
+
+/* ---------- flow actions ---------- */
+function setWhen(){
+  const v = $('#whenIn').value;
+  if(!v){ toast('Pick a time'); return; }
+  flow.data.ts = new Date(v).getTime();
+  if(flow.data.ts > Date.now()){ toast('That is in the future'); return; }
+  advance('wheel');
+}
+function pickCore(id){ flow.data._core=id; advance('feel'); }
+function selFeelings(f){
+  if(f.type==='checkin'){ f.data.feelings = f.data.feelings||[]; return f.data.feelings; }
+  f.data.fu.feelings = f.data.fu.feelings||[]; return f.data.fu.feelings;
+}
+function toggleFeel(name, coreId){
+  const arr = selFeelings(flow);
+  const i = arr.findIndex(s=>s.name===name);
+  if(i>=0){ arr.splice(i,1); render(); return; }
+  if(arr.length>=3){ toast('Up to 3 — swap one out first'); return; }
+  arr.push({name, core:coreId});
+  render();
+}
+function feelNext(){
+  const arr = selFeelings(flow);
+  if(!arr.length){ toast('Pick at least one'); return; }
+  afterFeelings();
+}
+function afterFeelings(){
+  if(flow.type==='checkin') advance('why');
+  else advance('sense');
+}
+function narrowStart(){ advance('nv'); }
+function pickValence(v){ flow.data._nv=v; advance('ne'); }
+function pickEnergy(e){
+  flow.data._ncores = NARROW[(flow.data._nv||'mixed')+'|'+e] || NARROW['mixed|mid'];
+  advance('nlist');
+}
+function whyNext(skip){
+  if(!skip){ const n=$('#whyIn'); if(n && n.value.trim()) flow.data.reflection=n.value.trim(); }
+  advance('sense');
+}
+function toggleSense(s){
+  const arr = flow.type==='checkin' ? flow.data.sensations : (flow.data.fu.sensations=flow.data.fu.sensations||[]);
+  const i = arr.indexOf(s);
+  if(i>=0) arr.splice(i,1); else arr.push(s);
+  render();
+}
+function senseNext(skip){
+  if(skip){ if(flow.type==='checkin') flow.data.sensations=[]; else flow.data.fu.sensations=[]; }
+  if(flow.type==='checkin') advance('kind'); else advance('spent');
+}
+function pickKind(k){
+  flow.data.type = k;
+  if(k==='note') advance('activity');
+  else advance('move');
+}
+function pickActivity(a){ flow.data.activity = (flow.data.activity===a? null : a); render(); }
+function customActivity(){
+  const v = $('#actIn').value.trim();
+  if(!v){ toast('Type something first'); return; }
+  flow.data.activity = v; render();
+}
+function finishNote(){
+  commitEntry(flow.data);
+  flow.step='done'; flow.data._doneKind='note'; render();
+}
+function pickMove(riding){
+  flow.data.onTrack = riding;
+  if(riding){ flow.data._copeShown = sample(settings().alternatives, 3); flow.data.coping=null; advance('cope'); }
+  else advance('code');
+}
+function reshuffleCopes(){ flow.data._copeShown = sample(settings().alternatives, 3); render(); }
+function pickCope(i){ flow.data.coping = flow.data._copeShown[i]; render(); }
+function pickCopeText(t){ flow.data.coping = t; render(); }
+function customCope(){
+  const v = $('#copeIn').value.trim();
+  if(!v){ toast('Type something first'); return; }
+  flow.data.coping = v; rememberCope(v); render();
+}
+function copeDone(){
+  if(flow.data.coping) rememberCope(flow.data.coping);
+  advance('checkback');
+}
+function pickCode(key, amt){
+  if(flow.type==='checkin'){
+    if(key){ const fm=FORMS.find(f=>f.key===key); Object.assign(flow.data,{code:makeCode(key,amt), form:key, amount:amt, unit:fm.unit}); }
+    advance('checkback');
+  } else {
+    if(key){ const fm=FORMS.find(f=>f.key===key); Object.assign(flow.data.fu,{actualCode:makeCode(key,amt), actualForm:key, actualAmount:amt, actualUnit:fm.unit}); }
+    else { flow.data.fu.actualCode='none'; }
+    finishFollowup();
+  }
+}
+function customCode(key){
+  const v = prompt('Amount');
+  if(v==null) return;
+  const n = parseFloat(v);
+  if(isNaN(n) || n<=0){ toast('Enter a number'); return; }
+  pickCode(key, n);
+}
+function setCheckback(yes){
+  flow.data.checkback = yes;
+  commitEntry(flow.data);
+  if(yes && !flow.data.backfill){
+    const dueAt = Date.now() + settings().delayMin*60000;
+    LS.set(K.pending, {entryId:flow.data.id, dueAt});
+    armReminder(dueAt);
+  }
+  flow.step='done'; flow.data._doneKind = flow.data.onTrack ? 'cope' : 'went'; render();
+}
+function pickSpent(x){ flow.data.fu.timeSpent=x; render(); }
+function customSpent(){
+  const v = $('#spentIn').value.trim();
+  if(!v){ toast('Type something first'); return; }
+  flow.data.fu.timeSpent=v; rememberCope(v); render();
+}
+function spentNext(){
+  const n=$('#fuNote'); if(n && n.value.trim()) flow.data.fu.note=n.value.trim();
+  advance('code');
+}
+function finishFollowup(){
+  const es = entries();
+  const e = es.find(x=>x.id===flow.data.entryId);
+  if(e){
+    const fu = Object.assign({completedAt:Date.now()}, flow.data.fu);
+    const fl = (fu.feelings||[]).map(s=>({name:s.name, bucket:(WHEEL.find(w=>w.id===s.core)||{}).label||null}));
+    fu.feelings = fl;
+    if(fl[0]){ fu.feeling = fl[0].name; fu.bucket = fl[0].bucket; }
+    e.followUp = fu; saveEntries(es);
+  }
+  LS.set(K.pending, null);
+  flow.step='done'; flow.data._doneKind='went'; render();
+  toast('Check-back saved');
+}
+function commitEntry(d){
+  const fl = (d.feelings||[]).map(s=>({name:s.name, bucket:(WHEEL.find(w=>w.id===s.core)||{}).label||null}));
+  const prim = fl[0]||null;
+  const e = {id:d.id, ts:d.ts||Date.now(), type:d.type||'note',
+    feeling:prim?prim.name:(d.feeling||null), bucket:prim?prim.bucket:(d.bucket||null),
+    feelings:fl, reflection:d.reflection||null, sensations:d.sensations||[],
+    activity:d.activity||null, onTrack:(d.type==='pull') ? !!d.onTrack : null,
+    coping:d.coping||null,
+    code:d.code||null, form:d.form||null, amount:d.amount||null, unit:d.unit||null,
+    checkback:!!d.checkback, backfill:!!d.backfill, followUp:null};
+  const es = entries(); es.push(e);
+  es.sort((a,b)=>a.ts-b.ts);
+  saveEntries(es);
+}
+
+/* ---------- reminders & nudges ---------- */
+let reminderTimer = null;
+function armReminder(dueAt){
+  if(reminderTimer) clearTimeout(reminderTimer);
+  const ms = dueAt - Date.now();
+  if(ms <= 0){ render(); return; }
+  reminderTimer = setTimeout(async ()=>{ await fireNotify('Time for a quick check-back.'); if(route==='home' && !flow) render(); }, Math.min(ms, 2147000000));
+}
+async function fireNotify(body){
+  if(typeof Notification!=='undefined' && Notification.permission==='granted'){
+    try{
+      const reg = await navigator.serviceWorker.getRegistration();
+      if(reg) reg.showNotification('Reset', {body, icon:'icon-192.png', tag:'rs-n'});
+      else new Notification('Reset', {body});
+    }catch(e){}
+  }
+}
+function todaysNudgeTimes(){
+  const s = settings();
+  return (s.nudges||[]).map(t=>{
+    const m = /^(\d{1,2}):(\d{2})$/.exec(t.trim()); if(!m) return null;
+    const d = new Date(); d.setHours(+m[1], +m[2], 0, 0); return d.getTime();
+  }).filter(Boolean).sort((a,b)=>a-b);
+}
+function nudgeDue(){
+  const times = todaysNudgeTimes(); if(!times.length) return false;
+  const now = Date.now();
+  const passed = times.filter(t=>t<=now);
+  if(!passed.length) return false;
+  const lastNudge = passed[passed.length-1];
+  return !entries().some(e=>e.ts>=lastNudge);
+}
+let nudgeTimer = null;
+function armNextNudge(){
+  if(nudgeTimer) clearTimeout(nudgeTimer);
+  const now = Date.now();
+  const next = todaysNudgeTimes().find(t=>t>now);
+  if(!next) return;
+  nudgeTimer = setTimeout(async ()=>{ await fireNotify('Take a moment to check in?'); if(route==='home'&&!flow) render(); armNextNudge(); }, Math.min(next-now, 2147000000));
+}
+function checkPendingOnWake(){
+  const p = LS.get(K.pending, null);
+  if(p && Date.now() < p.dueAt) armReminder(p.dueAt);
+  armNextNudge();
+  if(route==='home' && !flow) render();
+}
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) checkPendingOnWake(); });
+
+/* ---------- trends ---------- */
+function setRange(r){ trendsRange=r; render(); }
+function rangeEntries(){
+  const es = entries().slice().sort((a,b)=>a.ts-b.ts);
+  if(trendsRange==='all') return es;
+  const days = trendsRange==='week' ? 7 : 30;
+  return es.filter(e=>e.ts >= Date.now() - days*86400000);
+}
+function bucketByDay(es){
+  const map = new Map();
+  if(es.length===0) return {keys:[], map, weekly:false, start:new Date()};
+  const span = trendsRange==='all' ? Math.ceil((Date.now()-es[0].ts)/86400000)+1 : (trendsRange==='week'?7:30);
+  const weekly = span > 42;
+  const keys = [];
+  const start = trendsRange==='all' ? new Date(es[0].ts) : new Date(Date.now()-(span-1)*86400000);
+  start.setHours(0,0,0,0);
+  if(weekly){
+    const weeks = Math.ceil(span/7);
+    for(let i=0;i<weeks;i++) keys.push('w'+i);
+    for(const e of es){
+      const wi = Math.floor((e.ts - start.getTime())/(7*86400000));
+      const k = 'w'+Math.max(0,Math.min(weeks-1,wi));
+      if(!map.has(k)) map.set(k,[]); map.get(k).push(e);
+    }
+    return {keys, map, weekly:true, start};
+  }
+  for(let i=0;i<span;i++) keys.push(dayKey(start.getTime()+i*86400000));
+  for(const e of es){
+    const k = dayKey(e.ts);
+    if(!map.has(k)) map.set(k,[]); map.get(k).push(e);
+  }
+  return {keys, map, weekly:false, start};
+}
+function svgBars(values, labels, color, height, maxOverride, overlay, overlayColor){
+  const w = 320, h = height||120, pad=4, lblH = labels?16:0;
+  const max = maxOverride || Math.max(1, ...values, ...(overlay||[]));
+  const bw = Math.max(3, Math.floor((w - pad*2) / values.length) - 3);
+  let bars='', lbls='';
+  values.forEach((v,i)=>{
+    const x = pad + i*((w-pad*2)/values.length);
+    const bh = Math.round((v/max)*(h-lblH-8));
+    const y = h - lblH - bh;
+    bars += `<rect x="${x.toFixed(1)}" y="${y}" width="${bw}" height="${Math.max(bh, v>0?3:1)}" rx="2.5" fill="${v>0?color:'var(--line)'}"/>`;
+    if(overlay && overlay[i]>0){
+      const oh = Math.round((overlay[i]/max)*(h-lblH-8));
+      bars += `<rect x="${x.toFixed(1)}" y="${h-lblH-oh}" width="${bw}" height="${Math.max(oh,3)}" rx="2.5" fill="${overlayColor}"/>`;
+    }
+  });
+  if(labels){
+    const stepN = Math.ceil(values.length/5);
+    labels.forEach((t,i)=>{
+      if(i%stepN!==0 && i!==labels.length-1) return;
+      const x = pad + i*((w-pad*2)/values.length);
+      lbls += `<text x="${x.toFixed(1)}" y="${h-3}" font-size="9" fill="var(--mut)">${t}</text>`;
+    });
+  }
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="height:${h}px">${bars}${lbls}</svg>`;
+}
+function fbarHtml(list, color){
+  if(list.length===0) return `<div class="empty" style="padding:14px">No data yet</div>`;
+  const max = list[0][1];
+  return `<div class="fbars">${list.map(([f,n])=>`<div class="fbar"><span>${esc(f)}</span><span class="bar"><i style="width:${Math.round(100*n/max)}%;background:${color}"></i></span><span class="c">${n}</span></div>`).join('')}</div>`;
+}
+function countTop(es, getter, limit){
+  const c={};
+  for(const e of es){
+    let v=getter(e); if(!v) continue;
+    if(!Array.isArray(v)) v=[v];
+    for(const x of v){ if(x) c[x]=(c[x]||0)+1; }
+  }
+  return Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,limit||5);
+}
+function renderTrends(){
+  const es = rangeEntries();
+  const head = `<div class="prompt" style="font-size:23px;margin-bottom:8px">Trends</div>
+  <div class="range">
+    <button class="${trendsRange==='week'?'on':''}" onclick="setRange('week')">Week</button>
+    <button class="${trendsRange==='month'?'on':''}" onclick="setRange('month')">Month</button>
+    <button class="${trendsRange==='all'?'on':''}" onclick="setRange('all')">All</button>
+  </div>
+  <button class="weekbtn" onclick="openSummary()">Weekly summary →</button>`;
+  if(es.length===0) return head + `<div class="empty">Nothing here yet. It fills in as you check in.</div>`;
+
+  const pulls = es.filter(e=>e.type==='pull');
+  const rode = pulls.filter(e=>e.onTrack===true).length;
+  const went = pulls.filter(e=>e.onTrack===false).length;
+  const rate = pulls.length ? Math.round(100*rode/pulls.length) : 0;
+
+  const {keys, map, weekly, start} = bucketByDay(es);
+  const dayLabels = keys.map((k,i)=> weekly ? shortDay(start.getTime()+i*7*86400000) : shortDay(new Date(k+'T12:00').getTime()));
+  const sessions = keys.map(k=>(map.get(k)||[]).length);
+  const pullSeries = keys.map(k=>(map.get(k)||[]).filter(e=>e.type==='pull').length);
+
+  let byForm = '';
+  for(const fm of FORMS){
+    const series = keys.map(k=>{
+      let s=0;
+      for(const e of (map.get(k)||[])){
+        if(e.form===fm.key && e.amount) s+=e.amount;
+        if(e.followUp && e.followUp.actualForm===fm.key && e.followUp.actualAmount) s+=e.followUp.actualAmount;
+      }
+      return s;
+    });
+    if(series.every(v=>v===0)) continue;
+    byForm += `<div class="tcard"><h3>${fm.key}</h3><p class="hint">total per ${weekly?'week':'day'}</p>${svgBars(series, dayLabels, 'var(--sad)', 90)}</div>`;
+  }
+
+  const feelsOf = e => (e.feelings && e.feelings.length) ? e.feelings.map(f=>f.name) : e.feeling;
+  const beforePull = countTop(pulls, feelsOf);
+  const beforeWent = countTop(pulls.filter(e=>e.onTrack===false), feelsOf);
+  const copes = countTop(es, e=>e.coping || (e.followUp && e.followUp.timeSpent && e.followUp.timeSpent!=='Went ahead' ? e.followUp.timeSpent : null), 7);
+  const senses = countTop(pulls, e=>e.sensations);
+
+  const todBuckets=[0,0,0,0,0,0], todPull=[0,0,0,0,0,0];
+  for(const e of es){
+    const b = Math.floor(new Date(e.ts).getHours()/4);
+    todBuckets[b]++;
+    if(e.type==='pull') todPull[b]++;
+  }
+  const todLabels=['12–4a','4–8a','8–12','12–4p','4–8p','8–12p'];
+  const todMax=Math.max(1,...todBuckets);
+  let todSvg='<svg viewBox="0 0 320 110" style="height:110px">';
+  todBuckets.forEach((v,i)=>{
+    const x=8+i*52, bw=36;
+    const bh=Math.round((v/todMax)*78), ph=Math.round((todPull[i]/todMax)*78);
+    todSvg+=`<rect x="${x}" y="${88-bh}" width="${bw}" height="${Math.max(bh,v>0?3:1)}" rx="3" fill="var(--calm)"/>`;
+    if(ph>0) todSvg+=`<rect x="${x}" y="${88-ph}" width="${bw}" height="${ph}" rx="3" fill="var(--anger)"/>`;
+    todSvg+=`<text x="${x+bw/2}" y="102" font-size="9" fill="var(--mut)" text-anchor="middle">${todLabels[i]}</text>`;
+  });
+  todSvg+='</svg>';
+
+  return head + `
+  <div class="statrow">
+    <div class="stat"><div class="n">${es.length}</div><div class="l">check-ins</div></div>
+    <div class="stat"><div class="n">${pulls.length}</div><div class="l">pulls</div></div>
+    <div class="stat"><div class="n">${rate}%</div><div class="l">rode out</div></div>
+    <div class="stat"><div class="n">${went}</div><div class="l">went ahead</div></div>
+  </div>
+  <div class="tcard"><h3>Check-ins</h3><p class="hint">per ${weekly?'week':'day'} — the warm portion is pulls</p>${svgBars(sessions, dayLabels, 'var(--calm)', 110, null, pullSeries, 'var(--anger)')}</div>
+  ${byForm}
+  <div class="tcard"><h3>Feelings before a pull</h3><p class="hint">what most often comes right before</p>${fbarHtml(beforePull,'var(--fear)')}</div>
+  <div class="tcard"><h3>Feelings before going ahead</h3><p class="hint">the ones that most often tip it</p>${fbarHtml(beforeWent,'var(--anger)')}</div>
+  <div class="tcard"><h3>What worked instead</h3><p class="hint">most used moves</p>${fbarHtml(copes,'var(--joy)')}</div>
+  <div class="tcard"><h3>In the body</h3><p class="hint">sensations during pulls</p>${fbarHtml(senses,'var(--disgust)')}</div>
+  <div class="tcard"><h3>Time of day</h3><p class="hint">all check-ins, pulls shown warm</p>${todSvg}</div>`;
+}
+
+/* ---------- weekly summary ---------- */
+let includeLegend = true;
+function openSummary(){ summaryWeekStart = mondayOf(Date.now()); route='summary'; render(); }
+function shiftWeek(d){ summaryWeekStart += d*7*86400000; render(); }
+function toggleLegend(){ includeLegend = !includeLegend; render(); }
+function weekEntries(ws){
+  const we = ws + 7*86400000;
+  return entries().filter(e=>e.ts>=ws && e.ts<we).sort((a,b)=>a.ts-b.ts);
+}
+function buildReport(ws){
+  const we = ws + 7*86400000 - 1;
+  const es = weekEntries(ws);
+  const pulls = es.filter(e=>e.type==='pull');
+  const rode = pulls.filter(e=>e.onTrack===true);
+  const went = pulls.filter(e=>e.onTrack===false);
+
+  const totals = {};
+  for(const e of es){
+    if(e.form && e.amount){ totals[e.form]=(totals[e.form]||0)+e.amount; }
+    if(e.followUp && e.followUp.actualForm && e.followUp.actualAmount){ totals[e.followUp.actualForm]=(totals[e.followUp.actualForm]||0)+e.followUp.actualAmount; }
+  }
+  const totalsLine = FORMS.filter(f=>totals[f.key]).map(f=>`${f.key} ${totals[f.key]}${f.unit==='mg'||f.unit==='g'?f.unit:''}`).join(' · ') || 'none';
+
+  const feelsOf = e => (e.feelings && e.feelings.length) ? e.feelings.map(x=>x.name) : e.feeling;
+  const feelPull = countTop(pulls, feelsOf, 6);
+  const feelWent = countTop(went, feelsOf, 5);
+  const copes = countTop(es, e=>e.coping || (e.followUp && e.followUp.timeSpent && e.followUp.timeSpent!=='Went ahead' ? e.followUp.timeSpent : null), 8);
+  const senses = countTop(pulls, e=>e.sensations, 6);
+
+  let r = '';
+  r += `WEEK SUMMARY  ·  ${shortDay(ws)} – ${shortDay(we)}\n`;
+  r += `${'='.repeat(42)}\n\n`;
+  r += `Check-ins: ${es.length}  (notes ${es.filter(e=>e.type==='note').length} · pulls ${pulls.length})\n`;
+  r += `Pulls rode out: ${rode.length} of ${pulls.length}${pulls.length?` (${Math.round(100*rode.length/pulls.length)}%)`:''}\n`;
+  r += `Times went ahead: ${went.length}\n`;
+  r += `Week totals: ${totalsLine}\n\n`;
+  if(feelPull.length){
+    r += `Feelings most often before a pull:\n`;
+    r += feelPull.map(([f,n])=>`  · ${f} (${n})`).join('\n') + '\n\n';
+  }
+  if(feelWent.length){
+    r += `Feelings that most often preceded going ahead:\n`;
+    r += feelWent.map(([f,n])=>`  · ${f} (${n})`).join('\n') + '\n\n';
+  }
+  if(copes.length){
+    r += `What was done instead / to cope:\n`;
+    r += copes.map(([c,n])=>`  · ${c} (${n})`).join('\n') + '\n\n';
+  }
+  if(senses.length){
+    r += `Body sensations during pulls:\n`;
+    r += senses.map(([s,n])=>`  · ${s} (${n})`).join('\n') + '\n\n';
+  }
+  r += `Day by day:\n`;
+  for(let i=0;i<7;i++){
+    const ds = ws + i*86400000;
+    const day = es.filter(e=>dayKey(e.ts)===dayKey(ds));
+    const dname = new Date(ds).toLocaleDateString(undefined,{weekday:'short'});
+    if(day.length===0){ r += `  ${dname}: —\n`; continue; }
+    const bits = day.map(e=>{
+      const fstr = e.feeling ? e.feeling + (e.feelings && e.feelings.length>1 ? ` +${e.feelings.length-1}` : '') : '';
+      if(e.type==='note') return `${timeStr(e.ts)} ${fstr||'note'}${e.activity?` (${e.activity})`:''}`;
+      if(e.onTrack) return `${timeStr(e.ts)} pull · ${fstr} → ${e.coping||'rode it out'}`;
+      const amt = e.followUp && e.followUp.actualCode && e.followUp.actualCode!=='none' ? e.followUp.actualCode : (e.code||'?');
+      return `${timeStr(e.ts)} pull · ${fstr} → went ahead (${amt})`;
+    });
+    r += `  ${dname}: ${bits.join('  |  ')}\n`;
+  }
+  if(includeLegend){
+    r += `\nLegend: e = edible (mg) · vp = vape pen (hits) · pf = Puffco (dabs) · j = joint (g)\n`;
+    r += `"Pull" = an urge moment. "Rode out" = chose something else.\n`;
+  }
+  return r;
+}
+function renderSummary(){
+  const ws = summaryWeekStart;
+  const report = buildReport(ws);
+  return `<div class="flow-top"><button class="back" onclick="go('trends')">‹ Trends</button></div>
+  <div class="prompt" style="font-size:23px">Weekly summary</div>
+  <div class="weeknav">
+    <button onclick="shiftWeek(-1)">‹</button>
+    <span class="wl">${shortDay(ws)} – ${shortDay(ws+6*86400000)}</span>
+    <button onclick="shiftWeek(1)" ${ws>=mondayOf(Date.now())?'disabled style="opacity:.35"':''}>›</button>
+  </div>
+  <pre class="report">${esc(report)}</pre>
+  <label class="legendtoggle"><input type="checkbox" ${includeLegend?'checked':''} onchange="toggleLegend()"> Include the plain-language legend (for sharing)</label>
+  <div class="btnrow">
+    <button class="btn" onclick="copyReport()">Copy</button>
+    <button class="btn primary" onclick="downloadReport()">Download .txt</button>
+  </div>
+  <p style="color:var(--mut);font-size:12.5px;margin-top:14px">Heads up: with the legend on, the file says what the codes mean. Leave it off to keep the export coded.</p>`;
+}
+function copyReport(){
+  const r = buildReport(summaryWeekStart);
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(r).then(()=>toast('Copied'), ()=>toast('Copy failed — use Download'));
+  } else toast('Copy not available — use Download');
+}
+function downloadReport(){
+  dl('week-summary.txt', buildReport(summaryWeekStart), 'text/plain');
+}
+
+/* ---------- settings ---------- */
+function renderSettings(){
+  const s = settings();
+  const notifyOn = (typeof Notification!=='undefined' && Notification.permission==='granted');
+  return `<div class="prompt" style="font-size:23px;margin-bottom:14px">Settings</div>
+
+  <div class="scard"><h3>Daily nudges</h3>
+    <label>Times (24h, comma-separated)</label>
+    <input type="text" id="setNudges" value="${esc((s.nudges||[]).join(', '))}">
+    <div class="row">
+      <button class="sbtn" onclick="saveNudges()">Save</button>
+      <button class="sbtn" onclick="enableNotify()">${notifyOn ? 'Notifications on' : 'Allow notifications'}</button>
+    </div>
+    <label style="margin-top:12px">Honest note: if the app is closed, iOS won't fire these in the background — a "Take a moment?" banner waits on Home instead. For reliable buzzes when closed, add an iPhone Shortcuts automation (see the README) or ask for the push-server upgrade.</label>
+  </div>
+
+  <div class="scard"><h3>Check-back</h3>
+    <label>Delay (minutes)</label>
+    <input type="number" id="setDelay" min="5" max="240" value="${s.delayMin}">
+    <div class="row"><button class="sbtn" onclick="saveDelay()">Save</button></div>
+  </div>
+
+  <div class="scard"><h3>Suggestions</h3>
+    <label>One per line — shown when riding it out</label>
+    <textarea id="setAlts">${esc(s.alternatives.join('\n'))}</textarea>
+    <div class="row"><button class="sbtn" onclick="saveAlts()">Save</button></div>
+  </div>
+
+  <div class="scard"><h3>Quick buttons</h3>
+    ${FORMS.map(f=>`<label>${f.key}</label><input type="text" id="qk_${f.key}" value="${(s.quick[f.key]||[]).join(', ')}">`).join('')}
+    <div class="row"><button class="sbtn" onclick="saveQuick()">Save</button></div>
+  </div>
+
+  <div class="scard"><h3>Passcode</h3>
+    <label>4–6 digits, asked on open. Leave empty to remove.</label>
+    <input type="password" inputmode="numeric" maxlength="6" id="setPin" value="" placeholder="${s.pin ? 'set' : 'not set'}">
+    <div class="row"><button class="sbtn" onclick="savePin()">Save</button></div>
+  </div>
+
+  <div class="scard"><h3>Your data</h3>
+    <label>Everything stays on this device. Export to back it up.</label>
+    <div class="row">
+      <button class="sbtn fill" onclick="exportJSON()">Export JSON</button>
+      <button class="sbtn fill" onclick="exportCSV()">Export CSV</button>
+    </div>
+  </div>`;
+}
+function saveNudges(){
+  const s=settings();
+  const v=$('#setNudges').value.split(',').map(x=>x.trim()).filter(x=>/^\d{1,2}:\d{2}$/.test(x));
+  s.nudges=v; saveSettings(s); armNextNudge(); toast(v.length?'Saved':'Cleared');
+}
+function saveDelay(){ const s=settings(); const v=parseInt($('#setDelay').value,10); if(!isNaN(v)&&v>=5){ s.delayMin=v; saveSettings(s); toast('Saved'); } }
+function saveAlts(){ const s=settings(); const lines=$('#setAlts').value.split('\n').map(x=>x.trim()).filter(Boolean); if(lines.length>=3){ s.alternatives=lines; saveSettings(s); toast('Saved'); } else toast('Keep at least 3'); }
+function saveQuick(){
+  const s=settings();
+  for(const f of FORMS){
+    const v=$('#qk_'+f.key).value.split(',').map(x=>parseFloat(x.trim())).filter(x=>!isNaN(x)&&x>0);
+    if(v.length) s.quick[f.key]=v;
+  }
+  saveSettings(s); toast('Saved');
+}
+function savePin(){
+  const s=settings(); const v=$('#setPin').value.trim();
+  if(v===''){ s.pin=null; saveSettings(s); toast('Passcode removed'); return; }
+  if(!/^\d{4,6}$/.test(v)){ toast('Use 4–6 digits'); return; }
+  s.pin=v; saveSettings(s); toast('Passcode set');
+}
+function enableNotify(){
+  if(typeof Notification==='undefined'){ toast('Not supported here'); return; }
+  Notification.requestPermission().then(p=>{
+    toast(p==='granted' ? 'Notifications on' : 'Not allowed');
+    render();
+  });
+}
+function dl(name, text, type){
+  const b = new Blob([text], {type});
+  const u = URL.createObjectURL(b);
+  const a = document.createElement('a'); a.href=u; a.download=name; document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(u); a.remove();}, 500);
+}
+function exportJSON(){ dl('checkins.json', JSON.stringify(entries(), null, 2), 'application/json'); }
+function exportCSV(){
+  const cols=['id','timestamp','type','feeling','feelings','bucket','reflection','sensations','activity','onTrack','coping','code','form','amount','unit','checkback','backfill','fu_completedAt','fu_feeling','fu_feelings','fu_bucket','fu_timeSpent','fu_note','fu_code','fu_amount','fu_unit'];
+  const rows=[cols.join(',')];
+  for(const e of entries()){
+    const f=e.followUp||{};
+    const vals=[e.id, new Date(e.ts).toISOString(), e.type, e.feeling, (e.feelings||[]).map(x=>x.name).join(' | '), e.bucket, e.reflection, (e.sensations||[]).join(' | '), e.activity, e.onTrack, e.coping,
+      e.code, e.form, e.amount, e.unit, e.checkback, e.backfill,
+      f.completedAt?new Date(f.completedAt).toISOString():'', f.feeling, (f.feelings||[]).map(x=>x.name).join(' | '), f.bucket, f.timeSpent, f.note, f.actualCode, f.actualAmount, f.actualUnit];
+    rows.push(vals.map(v=>{
+      if(v===null||v===undefined) return '';
+      const s=String(v);
+      return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+    }).join(','));
+  }
+  dl('checkins.csv', rows.join('\n'), 'text/csv');
+}
+
+/* ---------- lock ---------- */
+function bootLock(){
+  const s = settings();
+  if(s.pin){
+    $('#lock').style.display='flex';
+    $('#pinIn').addEventListener('keydown', e=>{ if(e.key==='Enter') tryUnlock(); });
+    setTimeout(()=>$('#pinIn').focus(), 200);
+  }
+}
+function tryUnlock(){
+  const s=settings();
+  if($('#pinIn').value===s.pin){ $('#lock').style.display='none'; }
+  else { $('#pinMsg').textContent='Try again'; $('#pinIn').value=''; }
+}
+
+/* ---------- boot ---------- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=>render()); }catch(e){}
+bootLock();
+checkPendingOnWake();
+render();
+</script>
+</body>
+</html>
