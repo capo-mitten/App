@@ -462,7 +462,7 @@ function renderFlow(){
     const sel = selFeelings(f);
     const last = sel.length ? sel[sel.length-1] : null;
     return head + `<div class="prompt" style="color:${emph(w.hex)}">${w.label} — more specifically…</div>
-    <div class="subprompt">Lighter is milder, deeper is stronger. Pick up to 3 — across any emotions.</div>
+    <div class="subprompt">Lighter is milder, deeper is stronger. Pick what fits, across any emotions — fewer picks, sharper signal.</div>
     <div class="feels">${w.feelings.map((x,i)=>{
       const t = 0.82 - 0.62*(L>1 ? i/(L-1) : 0);
       const on = sel.some(s=>s.name===x);
@@ -503,7 +503,7 @@ function renderFlow(){
       body += `</div><button class="seeall" onclick="flow.data._core='${w.id}';flow.step='feel';render()">See all ${w.label} →</button>`;
     }
     return head + `<div class="prompt">Closest matches — you choose.</div>
-    <div class="subprompt">These fit what you described. Pick up to 3, or open a group for more.</div>
+    <div class="subprompt">These fit what you described. Pick what fits, or open a group for more.</div>
     ${body}
     <div class="btnrow"><button class="btn primary" onclick="feelNext()">Next${sel.length?` (${sel.length})`:''}</button></div>`;
   }
@@ -656,7 +656,6 @@ function toggleFeel(name, coreId){
   const arr = selFeelings(flow);
   const i = arr.findIndex(s=>s.name===name);
   if(i>=0){ arr.splice(i,1); render(); return; }
-  if(arr.length>=3){ toast('Up to 3 — swap one out first'); return; }
   arr.push({name, core:coreId});
   render();
 }
@@ -896,7 +895,7 @@ function svgBars(values, labels, color, height, maxOverride, overlay, overlayCol
 function fbarHtml(list, color){
   if(list.length===0) return `<div class="empty" style="padding:14px">No data yet</div>`;
   const max = list[0][1];
-  return `<div class="fbars">${list.map(([f,n])=>`<div class="fbar"><span>${esc(f)}</span><span class="bar"><i style="width:${Math.round(100*n/max)}%;background:${color}"></i></span><span class="c">${n}</span></div>`).join('')}</div>`;
+  return `<div class="fbars">${list.map(([f,n])=>`<div class="fbar"><span>${esc(f)}</span><span class="bar"><i style="width:${Math.round(100*n/max)}%;background:${color}"></i></span><span class="c">${fmtW(n)}</span></div>`).join('')}</div>`;
 }
 function countTop(es, getter, limit){
   const c={};
@@ -907,6 +906,19 @@ function countTop(es, getter, limit){
   }
   return Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,limit||5);
 }
+function feelStats(es, limit){
+  /* one point per check-in, split evenly across its selected feelings */
+  const m = {};
+  for(const e of es){
+    const fl = (e.feelings && e.feelings.length) ? e.feelings.map(f=>f.name) : (e.feeling ? [e.feeling] : []);
+    if(!fl.length) continue;
+    const w = 1/fl.length;
+    for(const name of fl){ const r = m[name] = m[name]||{w:0,n:0}; r.w += w; r.n++; }
+  }
+  return Object.entries(m).map(([name,r])=>({name, w:r.w, n:r.n}))
+    .sort((a,b)=>b.w-a.w).slice(0, limit||6);
+}
+const fmtW = v => Number.isInteger(v) ? String(v) : v.toFixed(1);
 function renderTrends(){
   const es = rangeEntries();
   const head = `<div class="prompt" style="font-size:23px;margin-bottom:8px">Trends</div>
@@ -942,9 +954,9 @@ function renderTrends(){
     byForm += `<div class="tcard"><h3>${fm.key}</h3><p class="hint">total per ${weekly?'week':'day'}</p>${svgBars(series, dayLabels, 'var(--sad)', 90)}</div>`;
   }
 
-  const feelsOf = e => (e.feelings && e.feelings.length) ? e.feelings.map(f=>f.name) : e.feeling;
-  const beforePull = countTop(pulls, feelsOf);
-  const beforeWent = countTop(pulls.filter(e=>e.onTrack===false), feelsOf);
+  const beforePull = feelStats(pulls, 5).map(s=>[s.name, s.w]);
+  const beforeWent = feelStats(pulls.filter(e=>e.onTrack===false), 5).map(s=>[s.name, s.w]);
+  const overall = feelStats(es, 8).map(s=>[s.name, s.w]);
   const copes = countTop(es, e=>e.coping || (e.followUp && e.followUp.timeSpent && e.followUp.timeSpent!=='Went ahead' ? e.followUp.timeSpent : null), 7);
   const senses = countTop(pulls, e=>e.sensations);
 
@@ -975,6 +987,7 @@ function renderTrends(){
   </div>
   <div class="tcard"><h3>Check-ins</h3><p class="hint">per ${weekly?'week':'day'} — the warm portion is pulls</p>${svgBars(sessions, dayLabels, 'var(--calm)', 110, null, pullSeries, 'var(--anger)')}</div>
   ${byForm}
+  <div class="tcard"><h3>Feelings overall</h3><p class="hint">weighted — each check-in splits one point across its picks</p>${fbarHtml(overall,'var(--calm)')}</div>
   <div class="tcard"><h3>Feelings before a pull</h3><p class="hint">what most often comes right before</p>${fbarHtml(beforePull,'var(--fear)')}</div>
   <div class="tcard"><h3>Feelings before going ahead</h3><p class="hint">the ones that most often tip it</p>${fbarHtml(beforeWent,'var(--anger)')}</div>
   <div class="tcard"><h3>What worked instead</h3><p class="hint">most used moves</p>${fbarHtml(copes,'var(--joy)')}</div>
@@ -1005,9 +1018,9 @@ function buildReport(ws){
   }
   const totalsLine = FORMS.filter(f=>totals[f.key]).map(f=>`${f.key} ${totals[f.key]}${f.unit==='mg'||f.unit==='g'?f.unit:''}`).join(' · ') || 'none';
 
-  const feelsOf = e => (e.feelings && e.feelings.length) ? e.feelings.map(x=>x.name) : e.feeling;
-  const feelPull = countTop(pulls, feelsOf, 6);
-  const feelWent = countTop(went, feelsOf, 5);
+  const feelPull = feelStats(pulls, 6);
+  const feelWent = feelStats(went, 5);
+  const anyMulti = es.some(e=>e.feelings && e.feelings.length>1);
   const copes = countTop(es, e=>e.coping || (e.followUp && e.followUp.timeSpent && e.followUp.timeSpent!=='Went ahead' ? e.followUp.timeSpent : null), 8);
   const senses = countTop(pulls, e=>e.sensations, 6);
 
@@ -1019,12 +1032,15 @@ function buildReport(ws){
   r += `Times went ahead: ${went.length}\n`;
   r += `Week totals: ${totalsLine}\n\n`;
   if(feelPull.length){
-    r += `Feelings most often before a pull:\n`;
-    r += feelPull.map(([f,n])=>`  · ${f} (${n})`).join('\n') + '\n\n';
+    r += `Feelings most often before a pull${anyMulti?' (weighted · times picked)':''}:\n`;
+    r += feelPull.map(s=>`  · ${s.name} — ${fmtW(s.w)}${anyMulti?` (${s.n}×)`:''}`).join('\n') + '\n\n';
   }
   if(feelWent.length){
-    r += `Feelings that most often preceded going ahead:\n`;
-    r += feelWent.map(([f,n])=>`  · ${f} (${n})`).join('\n') + '\n\n';
+    r += `Feelings that most often preceded going ahead${anyMulti?' (weighted · times picked)':''}:\n`;
+    r += feelWent.map(s=>`  · ${s.name} — ${fmtW(s.w)}${anyMulti?` (${s.n}×)`:''}`).join('\n') + '\n\n';
+  }
+  if(anyMulti){
+    r += `(Weighting: each check-in contributes one point, split evenly across the feelings selected in it.)\n\n`;
   }
   if(copes.length){
     r += `What was done instead / to cope:\n`;
