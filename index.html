@@ -399,13 +399,25 @@ function renderHome(){
     <button class="checkin-btn" onclick="startCheckin()"><span class="inner">Check in</span></button>
     <div class="sub serif" style="font-size:16px">How's the moment?</div>
     <div class="streakline">${esc(line)}</div>
-    <button class="earlier" onclick="startBackfill()">Log something from earlier</button>
+    <button class="earlier" onclick="startJournal()">Write in the journal</button>
+    <button class="earlier" style="margin-top:6px" onclick="startBackfill()">Log something from earlier</button>
   </div>`;
 }
 
 /* ---------- flow control ---------- */
 function startCheckin(){ flow = {type:'checkin', step:'wheel', stack:[], data:{id:uid(), ts:Date.now(), sensations:[]}}; render(); }
 function startBackfill(){ flow = {type:'checkin', step:'when', stack:[], data:{id:uid(), ts:null, sensations:[], backfill:true}}; render(); }
+function startJournal(){ flow = {type:'journal', step:'jtext', stack:[], data:{id:uid(), ts:Date.now(), type:'journal', sensations:[], feelings:[]}}; render(); }
+function jNext(withFeelings){
+  const v = $('#jIn').value.trim();
+  if(!v){ toast('Write a little first'); return; }
+  flow.data.text = v;
+  if(withFeelings) advance('wheel'); else finishJournal();
+}
+function finishJournal(){
+  commitEntry(flow.data);
+  flow.step='done'; flow.data._doneKind='journal'; render();
+}
 function startFollowup(){
   const p = LS.get(K.pending, null); if(!p) return;
   flow = {type:'followup', step:'wheel', stack:[], data:{entryId:p.entryId, fu:{}}};
@@ -414,7 +426,8 @@ function startFollowup(){
 function advance(step){ flow.stack.push(flow.step); flow.step=step; render(); }
 function goBack(){ if(flow.stack.length){ flow.step=flow.stack.pop(); render(); } else cancelFlow(); }
 function cancelFlow(){
-  if(flow && flow.type==='checkin' && flow.data.feelings && flow.data.feelings.length && !flow.data.backfill){
+  if(flow && flow.type==='journal' && flow.data.text){ commitEntry(flow.data); toast('Saved'); }
+  else if(flow && flow.type==='checkin' && flow.data.feelings && flow.data.feelings.length && !flow.data.backfill){
     commitEntry(Object.assign({type:'note'}, flow.data)); toast('Saved as a quick note');
   }
   flow=null; render();
@@ -448,9 +461,18 @@ function renderFlow(){
     <input type="datetime-local" class="when" id="whenIn" max="${d.toISOString().slice(0,16)}" value="${d.toISOString().slice(0,16)}">
     <div class="btnrow"><button class="btn primary" onclick="setWhen()">Next</button></div>`;
   }
+  if(f.step==='jtext'){
+    return head + `<div class="prompt">What's on your mind?</div>
+    <div class="subprompt">Write freely — or tap the mic on your keyboard and just talk.</div>
+    <textarea class="note" id="jIn" rows="9" placeholder="Today…">${esc(f.data.text||'')}</textarea>
+    <div class="btnrow">
+      <button class="btn ghost" onclick="jNext(true)">Add feelings →</button>
+      <button class="btn primary" onclick="jNext(false)">Save</button>
+    </div>`;
+  }
   if(f.step==='wheel'){
     const sel = selFeelings(f);
-    return head + `<div class="prompt">${f.type==='followup' ? "How's the moment now?" : "How's the moment?"}</div>
+    return head + `<div class="prompt">${f.type==='followup' ? "How's the moment now?" : (f.type==='journal' ? "How does it feel?" : "How's the moment?")}</div>
     <div class="wheelwrap">${wheelSVG()}</div>
     ${sel.length ? `<div class="selstrip">${sel.map(s=>{const w=WHEEL.find(w=>w.id===s.core);return `<button class="mini" style="background:${tintC(w.hex,0.35)}" onclick="toggleFeel('${esc(s.name).replace(/'/g,"\\'")}','${s.core}')">${esc(s.name)} ✕</button>`;}).join('')}</div>
     <div class="btnrow"><button class="btn primary" onclick="afterFeelings()">Continue with ${sel.length}</button></div>` : ''}
@@ -612,7 +634,8 @@ function renderFlow(){
   }
   if(f.step==='done'){
     const kind = f.data._doneKind;
-    const msg = kind==='note' ? ['Noted.','Naming it is most of the work.']
+    const msg = kind==='journal' ? ['Saved.','Your exact words are kept — themes surface in the weekly summary.']
+      : kind==='note' ? ['Noted.','Naming it is most of the work.']
       : kind==='cope' ? ['Logged. Good call.','Come back any time — the record is the win.']
       : ['Logged.','No judgment — honest data is what helps.'];
     return `<div class="donecard">
@@ -649,7 +672,7 @@ function setWhen(){
 }
 function pickCore(id){ flow.data._core=id; advance('feel'); }
 function selFeelings(f){
-  if(f.type==='checkin'){ f.data.feelings = f.data.feelings||[]; return f.data.feelings; }
+  if(f.type!=='followup'){ f.data.feelings = f.data.feelings||[]; return f.data.feelings; }
   f.data.fu.feelings = f.data.fu.feelings||[]; return f.data.fu.feelings;
 }
 function toggleFeel(name, coreId){
@@ -665,6 +688,7 @@ function feelNext(){
   afterFeelings();
 }
 function afterFeelings(){
+  if(flow.type==='journal'){ finishJournal(); return; }
   if(flow.type==='checkin') advance('why');
   else advance('sense');
 }
@@ -778,7 +802,7 @@ function commitEntry(d){
     feeling:prim?prim.name:(d.feeling||null), bucket:prim?prim.bucket:(d.bucket||null),
     feelings:fl, reflection:d.reflection||null, sensations:d.sensations||[],
     activity:d.activity||null, onTrack:(d.type==='pull') ? !!d.onTrack : null,
-    coping:d.coping||null,
+    coping:d.coping||null, text:d.text||null,
     code:d.code||null, form:d.form||null, amount:d.amount||null, unit:d.unit||null,
     checkback:!!d.checkback, backfill:!!d.backfill, followUp:null};
   const es = entries(); es.push(e);
@@ -1000,6 +1024,19 @@ let includeLegend = true;
 function openSummary(){ summaryWeekStart = mondayOf(Date.now()); route='summary'; render(); }
 function shiftWeek(d){ summaryWeekStart += d*7*86400000; render(); }
 function toggleLegend(){ includeLegend = !includeLegend; render(); }
+const STOPW = new Set(('the,and,for,that,this,with,was,were,have,has,had,not,but,you,your,are,its,from,they,them,then,than,what,when,where,which,while,will,would,could,should,about,into,over,under,just,like,really,very,been,being,some,more,most,also,because,how,why,who,out,off,too,can,cant,dont,didnt,wasnt,isnt,im,ive,id,ill,it,its,felt,feel,feeling,today,still,get,got,going,went,want,wanted,make,made,much,even,know,think,thing,things,time,back,one,two,now,day,days,bit,lot,kind,sort,there,here,after,before,again,around,maybe,little,right,need,needed,trying,tried,doing,does,did,every,myself,gonna,kinda,actually,definitely,probably').split(','));
+function themesOf(texts, n){
+  const c = {};
+  for(const t of texts){
+    if(!t) continue;
+    for(let w of String(t).toLowerCase().split(/[^a-z']+/)){
+      w = w.replace(/'/g,'');
+      if(w.length<4 || STOPW.has(w)) continue;
+      c[w]=(c[w]||0)+1;
+    }
+  }
+  return Object.entries(c).filter(([,k])=>k>=2).sort((a,b)=>b[1]-a[1]).slice(0,n||8).map(([w,k])=>`${w} (${k})`);
+}
 function weekEntries(ws){
   const we = ws + 7*86400000;
   return entries().filter(e=>e.ts>=ws && e.ts<we).sort((a,b)=>a.ts-b.ts);
@@ -1010,6 +1047,8 @@ function buildReport(ws){
   const pulls = es.filter(e=>e.type==='pull');
   const rode = pulls.filter(e=>e.onTrack===true);
   const went = pulls.filter(e=>e.onTrack===false);
+  const journals = es.filter(e=>e.type==='journal');
+  const themes = themesOf(journals.map(j=>j.text).concat(es.map(e=>e.reflection)), 8);
 
   const totals = {};
   for(const e of es){
@@ -1027,7 +1066,7 @@ function buildReport(ws){
   let r = '';
   r += `WEEK SUMMARY  ·  ${shortDay(ws)} – ${shortDay(we)}\n`;
   r += `${'='.repeat(42)}\n\n`;
-  r += `Check-ins: ${es.length}  (notes ${es.filter(e=>e.type==='note').length} · pulls ${pulls.length})\n`;
+  r += `Check-ins: ${es.length}  (notes ${es.filter(e=>e.type==='note').length} · pulls ${pulls.length} · journal ${journals.length})\n`;
   r += `Pulls rode out: ${rode.length} of ${pulls.length}${pulls.length?` (${Math.round(100*rode.length/pulls.length)}%)`:''}\n`;
   r += `Times went ahead: ${went.length}\n`;
   r += `Week totals: ${totalsLine}\n\n`;
@@ -1050,6 +1089,15 @@ function buildReport(ws){
     r += `Body sensations during pulls:\n`;
     r += senses.map(([s,n])=>`  · ${s} (${n})`).join('\n') + '\n\n';
   }
+  if(journals.length){
+    r += `Journal — ${journals.length} entr${journals.length>1?'ies':'y'}${themes.length?`; recurring words: ${themes.join(', ')}`:''}\n`;
+    for(const j of journals){
+      const fl = j.feeling ? ` · ${j.feeling}${j.feelings && j.feelings.length>1 ? ` +${j.feelings.length-1}` : ''}` : '';
+      r += `  ${shortDay(j.ts)} ${timeStr(j.ts)}${fl}\n`;
+      r += String(j.text||'').split('\n').map(l=>'    '+l).join('\n') + '\n';
+    }
+    r += '\n';
+  }
   r += `Day by day:\n`;
   for(let i=0;i<7;i++){
     const ds = ws + i*86400000;
@@ -1058,6 +1106,7 @@ function buildReport(ws){
     if(day.length===0){ r += `  ${dname}: —\n`; continue; }
     const bits = day.map(e=>{
       const fstr = e.feeling ? e.feeling + (e.feelings && e.feelings.length>1 ? ` +${e.feelings.length-1}` : '') : '';
+      if(e.type==='journal') return `${timeStr(e.ts)} journal${fstr?` · ${fstr}`:''}`;
       if(e.type==='note') return `${timeStr(e.ts)} ${fstr||'note'}${e.activity?` (${e.activity})`:''}`;
       if(e.onTrack) return `${timeStr(e.ts)} pull · ${fstr} → ${e.coping||'rode it out'}`;
       const amt = e.followUp && e.followUp.actualCode && e.followUp.actualCode!=='none' ? e.followUp.actualCode : (e.code||'?');
@@ -1084,8 +1133,12 @@ function renderSummary(){
   <pre class="report">${esc(report)}</pre>
   <label class="legendtoggle"><input type="checkbox" ${includeLegend?'checked':''} onchange="toggleLegend()"> Include the plain-language legend (for sharing)</label>
   <div class="btnrow">
-    <button class="btn" onclick="copyReport()">Copy</button>
-    <button class="btn primary" onclick="downloadReport()">Download .txt</button>
+    <button class="btn primary" onclick="sharePDF()">Share PDF report</button>
+  </div>
+  <p style="color:var(--mut);font-size:12.5px;margin:10px 0 4px">The PDF is written in plain clinical language and includes journal entries verbatim — it's built to hand to your therapist. Sharing opens your normal share sheet; nothing is uploaded anywhere.</p>
+  <div class="btnrow">
+    <button class="btn" onclick="copyReport()">Copy text</button>
+    <button class="btn" onclick="downloadReport()">Download .txt</button>
   </div>
   <p style="color:var(--mut);font-size:12.5px;margin-top:14px">Heads up: with the legend on, the file says what the codes mean. Leave it off to keep the export coded.</p>`;
 }
@@ -1097,6 +1150,211 @@ function copyReport(){
 }
 function downloadReport(){
   dl('week-summary.txt', buildReport(summaryWeekStart), 'text/plain');
+}
+
+/* ---------- clinical PDF ---------- */
+function pdfSan(s){
+  if(s==null) return '';
+  return String(s)
+    .replace(/[\u2018\u2019\u02BC]/g,"'").replace(/[\u201C\u201D]/g,'"')
+    .replace(/[\u2013\u2014]/g,'-').replace(/\u2026/g,'...')
+    .replace(/[\u00B7\u2022\u25CF\u25E6]/g,'-').replace(/\u00D7/g,'x').replace(/\u2192/g,'->')
+    .replace(/[^\x20-\x7E\n]/g,'');
+}
+function pdfEsc(s){ return s.replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)'); }
+function PDFBuilder(){
+  const W=612, H=792, M=56, maxW=W-2*M;
+  const pages=[]; let buf=[]; let y=H-M;
+  function flush(){ pages.push(buf.join('\n')); buf=[]; y=H-M; }
+  function ensure(h){ if(y-h < M) flush(); }
+  function wrap(str,size,bold){
+    const cw = size*(bold?0.545:0.50);
+    const maxC = Math.max(8, Math.floor(maxW/cw));
+    const out=[];
+    for(const para of String(str).split('\n')){
+      let line='';
+      for(const word of para.split(/\s+/).filter(Boolean)){
+        if(((line?line+' ':'')+word).length<=maxC) line=(line?line+' ':'')+word;
+        else{
+          if(line) out.push(line);
+          if(word.length>maxC){ for(let i=0;i<word.length;i+=maxC) out.push(word.slice(i,i+maxC)); line=''; }
+          else line=word;
+        }
+      }
+      out.push(line);
+    }
+    return out;
+  }
+  function t(str, o){
+    o=o||{};
+    const size=o.size||10.5, bold=!!o.bold, col=o.color||'0.16 0.15 0.13', indent=o.indent||0;
+    const lines = wrap(pdfSan(str), size, bold);
+    for(const ln of lines){
+      ensure(size*1.4);
+      y -= size*1.15;
+      buf.push(`BT /${bold?'F2':'F1'} ${size} Tf ${col} rg 1 0 0 1 ${M+indent} ${y.toFixed(1)} Tm (${pdfEsc(ln)}) Tj ET`);
+      y -= size*0.25;
+    }
+    if(o.gap) y -= o.gap;
+  }
+  function rule(){ ensure(14); y-=6; buf.push(`q 0.84 0.82 0.79 RG 0.7 w ${M} ${y.toFixed(1)} m ${W-M} ${y.toFixed(1)} l S Q`); y-=10; }
+  function gap(n){ y-=n; }
+  function pageBreak(){ flush(); }
+  function finish(){
+    if(buf.length) flush();
+    const objs=[];
+    const kids = pages.map((_,i)=>`${5+2*i} 0 R`).join(' ');
+    objs.push(`1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj`);
+    objs.push(`2 0 obj << /Type /Pages /Count ${pages.length} /Kids [${kids}] >> endobj`);
+    objs.push(`3 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj`);
+    objs.push(`4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> endobj`);
+    pages.forEach((content,i)=>{
+      const pn=5+2*i, cn=6+2*i;
+      objs.push(`${pn} 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${cn} 0 R >> endobj`);
+      objs.push(`${cn} 0 obj << /Length ${content.length} >> stream\n${content}\nendstream endobj`);
+    });
+    let out='%PDF-1.4\n'; const offs=[];
+    for(const o of objs){ offs.push(out.length); out += o + '\n'; }
+    const xref = out.length;
+    out += `xref\n0 ${objs.length+1}\n0000000000 65535 f \n`;
+    for(const off of offs) out += String(off).padStart(10,'0') + ' 00000 n \n';
+    out += `trailer << /Size ${objs.length+1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+    return out;
+  }
+  return {t, rule, gap, pageBreak, finish};
+}
+function decodeUse(form, amt){
+  if(form==='e') return `edible, ${amt} mg`;
+  if(form==='vp') return `vape pen, ${amt} hit${amt==1?'':'s'}`;
+  if(form==='pf') return `concentrate, ${amt} dab${amt==1?'':'s'}`;
+  if(form==='j') return `joint, ${amt} g`;
+  return '';
+}
+function buildClinicalPDF(ws){
+  const we = ws + 7*86400000 - 1;
+  const es = weekEntries(ws);
+  const pulls = es.filter(e=>e.type==='pull');
+  const rode = pulls.filter(e=>e.onTrack===true);
+  const went = pulls.filter(e=>e.onTrack===false);
+  const journals = es.filter(e=>e.type==='journal');
+  const notes = es.filter(e=>e.type==='note');
+  const themes = themesOf(journals.map(j=>j.text).concat(es.map(e=>e.reflection)), 8);
+  const anyMulti = es.some(e=>e.feelings && e.feelings.length>1);
+  const totals = {};
+  for(const e of es){
+    if(e.form && e.amount) totals[e.form]=(totals[e.form]||0)+e.amount;
+    if(e.followUp && e.followUp.actualForm && e.followUp.actualAmount) totals[e.followUp.actualForm]=(totals[e.followUp.actualForm]||0)+e.followUp.actualAmount;
+  }
+  const feelPull = feelStats(pulls, 6), feelWent = feelStats(went, 5), overall = feelStats(es, 8);
+  const copes = countTop(es, e=>e.coping || (e.followUp && e.followUp.timeSpent && e.followUp.timeSpent!=='Went ahead' ? e.followUp.timeSpent : null), 8);
+  const senses = countTop(pulls, e=>e.sensations, 6);
+  const tod=[0,0,0,0,0,0], todU=[0,0,0,0,0,0];
+  for(const e of pulls){ const b=Math.floor(new Date(e.ts).getHours()/4); tod[b]++; if(e.onTrack===false) todU[b]++; }
+  const todL=['12-4a','4-8a','8a-12p','12-4p','4-8p','8p-12a'];
+
+  const P = PDFBuilder();
+  const MUT='0.44 0.42 0.39';
+  P.t('Self-Monitoring Summary', {size:21, bold:true});
+  P.t(`${shortDay(ws)} - ${shortDay(we)}  -  client-generated report`, {size:11, color:MUT, gap:4});
+  P.t('Prepared from in-the-moment self-monitoring of cannabis urges, use, mood, and coping. Self-reported; descriptive, not diagnostic.', {size:9, color:MUT, gap:6});
+  P.rule();
+
+  P.t('Overview', {size:13, bold:true, gap:2});
+  P.t(`Total check-ins: ${es.length}   (mood notes ${notes.length} - urge episodes ${pulls.length} - journal entries ${journals.length})`, {indent:8});
+  P.t(`Urge episodes redirected: ${rode.length} of ${pulls.length}${pulls.length?` (${Math.round(100*rode.length/pulls.length)}%)`:''}`, {indent:8});
+  P.t(`Use events: ${went.length}`, {indent:8, gap:4});
+  const tl = FORMS.filter(f=>totals[f.key]).map(f=>decodeUse(f.key, +totals[f.key].toFixed(2))).join(';  ');
+  P.t(`Total reported use this week: ${tl || 'none'}`, {indent:8, gap:8});
+
+  if(feelPull.length){
+    P.t('Antecedent emotions (before urge episodes)', {size:13, bold:true, gap:2});
+    for(const s of feelPull) P.t(`- ${s.name}: ${fmtW(s.w)}${anyMulti?` (selected ${s.n}x)`:''}`, {indent:8});
+    P.gap(8);
+  }
+  if(feelWent.length){
+    P.t('Emotions preceding use events', {size:13, bold:true, gap:2});
+    for(const s of feelWent) P.t(`- ${s.name}: ${fmtW(s.w)}${anyMulti?` (selected ${s.n}x)`:''}`, {indent:8});
+    P.gap(8);
+  }
+  if(copes.length){
+    P.t('Coping / replacement behaviors used', {size:13, bold:true, gap:2});
+    for(const [c,n] of copes) P.t(`- ${c} (${n}x)`, {indent:8});
+    P.gap(8);
+  }
+  if(senses.length){
+    P.t('Somatic correlates during urges', {size:13, bold:true, gap:2});
+    for(const [s,n] of senses) P.t(`- ${s} (${n}x)`, {indent:8});
+    P.gap(8);
+  }
+  if(pulls.length){
+    P.t('Urge timing (4-hour blocks)', {size:13, bold:true, gap:2});
+    P.t(todL.map((l,i)=>`${l}: ${tod[i]}${todU[i]?` (${todU[i]} used)`:''}`).join('   '), {indent:8, size:9.5, gap:8});
+  }
+  if(journals.length){
+    P.t('Journal themes', {size:13, bold:true, gap:2});
+    P.t(`${journals.length} entr${journals.length>1?'ies':'y'} this week. Recurring words (keyword frequency, not semantic analysis): ${themes.length?themes.join(', '):'none repeated'}`, {indent:8, gap:8});
+  }
+
+  P.pageBreak();
+  P.t('Detailed log', {size:16, bold:true, gap:4});
+  for(let i=0;i<7;i++){
+    const ds = ws + i*86400000;
+    const day = es.filter(e=>dayKey(e.ts)===dayKey(ds));
+    P.t(new Date(ds).toLocaleDateString(undefined,{weekday:'long', month:'short', day:'numeric'}), {size:11.5, bold:true, gap:1});
+    if(!day.length){ P.t('no entries', {indent:8, color:MUT, gap:4}); continue; }
+    for(const e of day){
+      const fl = (e.feelings && e.feelings.length) ? e.feelings.map(f=>f.name).join(', ') : (e.feeling||'');
+      if(e.type==='journal'){ P.t(`${timeStr(e.ts)} - journal entry${fl?` - feelings: ${fl}`:''} (verbatim in appendix)`, {indent:8}); }
+      else if(e.type==='note'){ P.t(`${timeStr(e.ts)} - mood note - ${fl}${e.activity?` - activity: ${e.activity}`:''}`, {indent:8}); }
+      else if(e.onTrack){ P.t(`${timeStr(e.ts)} - urge episode - ${fl} -> redirected: ${e.coping||'alternative activity'}`, {indent:8}); }
+      else {
+        const planned = e.form ? decodeUse(e.form, e.amount) : 'unspecified';
+        P.t(`${timeStr(e.ts)} - urge episode - ${fl} -> used (${planned})`, {indent:8});
+      }
+      if(e.sensations && e.sensations.length) P.t(`body: ${e.sensations.join(', ')}`, {indent:20, size:9, color:MUT});
+      if(e.reflection) P.t(`note: "${e.reflection}"`, {indent:20, size:9, color:MUT});
+      if(e.followUp){
+        const fu = e.followUp;
+        const ff = (fu.feelings && fu.feelings.length) ? fu.feelings.map(f=>f.name).join(', ') : (fu.feeling||'');
+        const act = fu.actualCode==='none' ? 'no use' : (fu.actualForm ? decodeUse(fu.actualForm, fu.actualAmount) : '');
+        P.t(`follow-up: ${ff}${fu.timeSpent?` - spent time: ${fu.timeSpent}`:''}${act?` - outcome: ${act}`:''}${fu.note?` - "${fu.note}"`:''}`, {indent:20, size:9, color:MUT});
+      }
+      P.gap(2);
+    }
+    P.gap(4);
+  }
+
+  if(journals.length){
+    P.pageBreak();
+    P.t('Appendix: journal entries (verbatim)', {size:16, bold:true, gap:4});
+    for(const j of journals){
+      const fl = (j.feelings && j.feelings.length) ? ` - feelings: ${j.feelings.map(f=>f.name).join(', ')}` : '';
+      P.t(`${shortDay(j.ts)} ${timeStr(j.ts)}${fl}`, {size:11, bold:true, gap:1});
+      P.t(j.text||'', {indent:8, gap:8});
+    }
+  }
+
+  P.gap(6); P.rule();
+  P.t('Method notes', {size:11, bold:true, gap:2});
+  if(anyMulti) P.t('- Emotion weighting: each check-in contributes one point, split evenly across the feelings selected in it; raw selection counts shown as (n x).', {size:9, color:MUT, indent:8});
+  P.t('- "Urge episode" = a logged moment of wanting to use. "Redirected" = chose an alternative. Routes: edible (mg THC), vape pen (hits), concentrate (dabs), joint (grams flower).', {size:9, color:MUT, indent:8});
+  P.t('- Entries are timestamped at logging; some may be backfilled. Journal themes are simple keyword frequency.', {size:9, color:MUT, indent:8});
+  P.t('- Generated on-device by a personal self-monitoring tool; no clinician input. For discussion in session.', {size:9, color:MUT, indent:8});
+  return P.finish();
+}
+async function sharePDF(){
+  const str = buildClinicalPDF(summaryWeekStart);
+  const bytes = new Uint8Array(str.length);
+  for(let i=0;i<str.length;i++) bytes[i] = str.charCodeAt(i) & 0xFF;
+  const file = new File([bytes], 'weekly-summary.pdf', {type:'application/pdf'});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    try{ await navigator.share({files:[file], title:'Weekly summary'}); }catch(e){}
+  } else {
+    const u = URL.createObjectURL(file);
+    const a = document.createElement('a'); a.href=u; a.download='weekly-summary.pdf';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(u); a.remove(); }, 500);
+  }
 }
 
 /* ---------- settings ---------- */
@@ -1182,11 +1440,11 @@ function dl(name, text, type){
 }
 function exportJSON(){ dl('checkins.json', JSON.stringify(entries(), null, 2), 'application/json'); }
 function exportCSV(){
-  const cols=['id','timestamp','type','feeling','feelings','bucket','reflection','sensations','activity','onTrack','coping','code','form','amount','unit','checkback','backfill','fu_completedAt','fu_feeling','fu_feelings','fu_bucket','fu_timeSpent','fu_note','fu_code','fu_amount','fu_unit'];
+  const cols=['id','timestamp','type','feeling','feelings','bucket','reflection','sensations','activity','onTrack','coping','text','code','form','amount','unit','checkback','backfill','fu_completedAt','fu_feeling','fu_feelings','fu_bucket','fu_timeSpent','fu_note','fu_code','fu_amount','fu_unit'];
   const rows=[cols.join(',')];
   for(const e of entries()){
     const f=e.followUp||{};
-    const vals=[e.id, new Date(e.ts).toISOString(), e.type, e.feeling, (e.feelings||[]).map(x=>x.name).join(' | '), e.bucket, e.reflection, (e.sensations||[]).join(' | '), e.activity, e.onTrack, e.coping,
+    const vals=[e.id, new Date(e.ts).toISOString(), e.type, e.feeling, (e.feelings||[]).map(x=>x.name).join(' | '), e.bucket, e.reflection, (e.sensations||[]).join(' | '), e.activity, e.onTrack, e.coping, e.text,
       e.code, e.form, e.amount, e.unit, e.checkback, e.backfill,
       f.completedAt?new Date(f.completedAt).toISOString():'', f.feeling, (f.feelings||[]).map(x=>x.name).join(' | '), f.bucket, f.timeSpent, f.note, f.actualCode, f.actualAmount, f.actualUnit];
     rows.push(vals.map(v=>{
